@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+//	Module:			ImageDencoder.mxml
+//	Description: 	main class to test Windows Bitmap Decoder.
+//					Bitmap encoder is still work in progress.
+//					TIFF classes are also work in progress.
+//
+// 	Author(s):		C.T.Yeung		(cty)
+//
+// 	History:
+//	14Feb09			first completion of Windows Bitmap decoder	cty
+//  23Feb09			encoder/decoder of Windows Bitmap.
+//					- no compression nor 16 bpp.				cty
+//
+// Copyright (c) 2009 C.T.Yeung
+
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="absolute" creationComplete="onCreationComplete()" 
+	viewSourceURL="srcview/index.html"
+	width="500" height="400">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.graphics.codec.JPEGEncoder;
+			import com.adobe.images.JPGEncoder;
+			import com.adobe.images.PNGEncoder;
+			import com.WindowsBitmap.WinBmpEncoder;
+			import mx.controls.Alert;
+			import com.WindowsBitmap.WinBmpDecoder;
+			protected var file:File;
+			protected var loader:Loader;
+			protected var urlloader:URLLoader;
+			protected var bitmapData:BitmapData;
+			
+			protected function onCreationComplete():void
+			{
+				imgSrc.width  = 300;
+				imgSrc.height = 300;
+			}
+			
+/////////////////////////////////////////////////////////////////////
+// loading
+			private function onBtnBrowse():void
+			{
+				var filter:FileFilter = new FileFilter("Images", "*.jpg;*.gif;*.png;*.swf;*.bmp");
+				file = new File(); 
+			  	file = file.resolvePath("C:\\");
+			  	file.addEventListener(Event.SELECT, onFileOpen, false, 0, true);
+			  	file.browseForOpen("Open Image", [filter]);
+			}
+			
+			protected function onFileOpen(e:Event):void 
+			{
+				txtBrowseFile.text = file.url;
+				var str:String     = file.url.toUpperCase();
+
+				if (str.indexOf(".BMP", 0)>0){   
+					urlloader = new URLLoader();
+					urlloader.dataFormat = URLLoaderDataFormat.BINARY;
+					urlloader.addEventListener(Event.COMPLETE, onLoadWindowBitmap, false, 0, true);
+					urlloader.addEventListener(IOErrorEvent.IO_ERROR, onLoadError, false, 0, true);
+					urlloader.load(new URLRequest(file.url));
+				}
+				else {
+					loader = new Loader();
+					loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadComplete, false, 0, true);
+					loader.addEventListener(IOErrorEvent.IO_ERROR, onLoadError, false, 0, true);
+					loader.load(new URLRequest(file.url));
+				}
+			}
+
+			protected function onLoadComplete(e:Event):void
+			{
+				var bmp:Bitmap = loader.content as Bitmap;
+				imgSrc.source  = bmp;
+				bitmapData = bmp.bitmapData;
+			}
+			
+			private function onLoadWindowBitmap(e:Event):Boolean
+			{
+				var bytes:ByteArray = urlloader.data as ByteArray;
+				var winBmp:WinBmpDecoder = new WinBmpDecoder();
+				if( winBmp.decode(bytes) ) {
+					imgSrc.source = new Bitmap(winBmp.bitmapData);
+					bitmapData = winBmp.bitmapData;
+				}
+				return true;
+			}
+			
+			private function onLoadError(e:Event):void
+			{
+				Alert.show("Load Failed");
+			}
+			
+/////////////////////////////////////////////////////////////////////
+// Save
+						
+			private function onBtnSave():void
+			{
+				if (!bitmapData) return;
+				
+				var filter:FileFilter = new FileFilter("Images", "*.jpg;*.gif;*.png;*.swf;*.bmp");
+				file = new File(); 
+			  	file = file.resolvePath(txtBrowseFile.text);
+			  	file.addEventListener(Event.SELECT, onFileSave, false, 0, true);
+			  	file.browseForSave("Save Image");
+			}
+			
+			protected function onFileSave(e:Event):void
+			{
+				var bytes:ByteArray;
+				
+				if (!file.extension) {
+					var pos:int = txtBrowseFile.text.lastIndexOf(".");
+					file.nativePath += txtBrowseFile.text.substr(pos, txtBrowseFile.text.length-pos);
+				}
+				switch (file.extension.toUpperCase()) {
+					case "BMP":
+					bytes = onEncodeBMP();
+					break;
+					
+					case "PNG":
+					bytes = PNGEncoder.encode(bitmapData);
+					break;
+					
+					case "JPG":
+					case "JPEG":
+					bytes = onEncodeJPG();
+					break;
+					
+					default:
+					Alert.show("Image format not supported!");
+					return;
+				}
+				if (!bytes) {
+					Alert.show("Failed encoding");
+					return;
+				}
+					
+				var stream:FileStream = new FileStream();
+				stream.open(file, FileMode.WRITE);
+				stream.writeBytes(bytes, 0, bytes.length);
+				stream.close();
+			}
+			
+			protected function onEncodeJPG():ByteArray
+			{
+				var jpg:JPEGEncoder = new JPEGEncoder();
+				return jpg.encode(bitmapData);
+			}
+			
+			protected function onEncodeBMP():ByteArray
+			{
+				var winBmp:WinBmpEncoder = new WinBmpEncoder();
+				if(winBmp.encode(bitmapData)) 
+					return winBmp.bytes;
+				return null;
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:Canvas>
+		<mx:VBox paddingTop="10" paddingLeft="10" paddingRight="10" paddingBottom="10">
+			<mx:HBox>
+				<mx:Button id="btnBrowseFile" label="Browse" click="onBtnBrowse()" width="100"/>
+				<mx:TextInput id="txtBrowseFile" width="300"/>
+			</mx:HBox>
+			<mx:HBox>
+				<mx:Button id="btnSaveFile" label="Save" click="onBtnSave()" width="100"/>
+			</mx:HBox>
+			<mx:HBox borderColor="0x00" borderStyle="solid" borderThickness="1">
+				<mx:Image id="imgSrc" width="400" height="300"/>
+			</mx:HBox>
+		</mx:VBox>
+	</mx:Canvas>
+</mx:WindowedApplication>
