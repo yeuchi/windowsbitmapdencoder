@@ -1,0 +1,160 @@
+// ==================================================================
+// Module:			DirEntry.as
+//
+// Description:		Directory Entry for Adobe TIFF file v6.0
+//
+// Author(s):		C.T. Yeung
+// Company:			Jostens 2009
+//
+// History:
+// 23Feb09			start coding								cty
+// ==================================================================
+package baseline
+{
+	import com.TIFFbaseline.Header;
+	
+	import flash.utils.ByteArray;
+	
+	public class DirEntry
+	{
+		public static const SIZE:uint 			= 12;
+		public static const VALOFF_POS:uint		= 8;
+
+		// TYPE
+		public static const ASCII:uint 			= 1;
+		public static const SHORT:uint 			= 2;
+		public static const LONG:uint 			= 4;
+		public static const RATIONAL:uint 		= 8;
+		
+		public var nTAG:uint;					// (2 bytes) Identifier, see #define above
+		public var nType:uint;					// (2 bytes) Type of Data in directory entry
+		public var lCount:uint;					// (4 bytes) number of data entry
+		public var lValOff:uint;				// (4 bytes) data entry or offset to data in file
+		public var aryValue:Array;				// actual content (duplicate if fits lValOff
+		
+		protected var hdr:Header;
+/////////////////////////////////////////////////////////////////////
+// initialization
+
+		public function DirEntry(hdr:Header)
+		{
+			this.hdr = hdr;
+			aryValue = new Array();
+		}
+		
+		public function empty():void
+		{
+			nTAG 	= 0;
+			nType 	= 0;
+			lCount 	= 0;
+			lValOff = 0;
+			
+			if(aryValue)
+				if(aryValue.length)
+					aryValue = new Array();
+		}
+		
+		public function isEmpty():Boolean
+		{
+			if((nTAG)&&(aryValue))
+				return false;
+			return true;
+		}
+		
+/////////////////////////////////////////////////////////////////////
+// public
+
+		public function encode():Boolean
+		{
+			
+		}
+		
+		public function decode(bytes:ByteArray,
+							   count:uint,
+							   offset:uint)
+							   :Boolean
+		{
+			empty();
+			if(!hdr) return false;
+			
+			var i:uint = count * SIZE;
+			nTAG 	= (hdr.byteOrder==Header.INTEL)?
+						bytes[offset+i] + uint(bytes[offset+i+1]:
+						bytes[offset+i+1] + uint(bytes[offset+i])<<8;
+			nType 	= (hdr.byteOrder==Header.INTEL)?
+						bytes[offset+i+2] + uint(bytes[offset+i+3]):
+						bytes[offset+i+3] + uint(bytes[offset+i+2])<<8;
+			lCount 	= (hdr.byteOrder==Header.INTEL)?
+						bytes[offset+i+4] + uint(bytes[offset+i+5])<<8+
+						uint(bytes[offset+i+6])<<(8*2) + uint(bytes[offset+i+7])<<(8*3):
+						bytes[offset+i+7] + uint(bytes[offset+i+6])<<8+
+						uint(bytes[offset+i+5])<<(8*2) + uint(bytes[offset+i+4])<<(8*3);
+			lValOff = (hdr.byteOrder==Header.INTEL)?
+						bytes[offset+i+8]+uint(bytes[offset+i+9])<<8+
+						uint(bytes[offset+i+10])<<(8*2) + uint(bytes[offset+i+11])<<(8*3):
+						bytes[offset+i+11]+uint(bytes[offset+i+10])<<8+
+						uint(bytes[offset+i+9])<<(8*2) + uint(bytes[offset+i+8])<<(8*3);
+		
+			var len:uint = lCount + byteCount(nType);
+			var c:uint=0;
+			var j:uint=0;
+			var off:uint = ( len > LONG )? lValOff:offset+VALOFF_POS; 
+			
+			switch(nType) {
+				case ASCII:	// text
+				for (c=0; c<len; c++) {
+					j = (hdr.byteOrder == Header.INTEL)? c:len-c;
+					var val:String = bytes[off+j];
+					aryValue.push(val); 
+				}
+				break;
+				
+				default:	// numbers
+				var l:uint = byteCount(nType);
+				for (c=0; c<len; c+=l) {
+					var val:Number;
+					for(var k:uint=0; k<l; k++) {
+						j = (hdr.byteOrder == Header.INTEL)? k:len-k;
+						val += bytes[off+c+j]<<(8*j);
+					}
+					aryValue.push(val); 
+				}
+				break;
+			}
+		}
+		
+		public function byteCount(nType:uint):uint
+		{
+			switch( nType )// Code		Type			Remarks
+			{				
+			case 1:			//	01H		byte			8 bit byte		
+			case 2:			//	02H		ascii			8 bit ascii code
+			case 6:			//	06H		sbyte			8 bit signed integer
+			case 7:			//	07H		undefined	8 bit contain anything
+				return ASCII;
+		
+			case 3:			//	03H		short			16 bit unsigned integer
+			case 8:			//	08H		sshort		16 bit signed integer
+				return SHORT;
+		
+			case  4:		//	04H		long			32 bit unsigned integer
+			case 11:		//	0BH		float			4 byte single percision
+				return LONG;
+		
+			case 5:			//	05H		rational		2 long numbers									
+							//				1st long		= number of a fraction
+							//				2nd long		= denominator
+		
+			case 9:			//	09H		slong			32 bit signed integer
+			case 10:		//	0AH		rational		2 slong numbers
+							//				1st slong	= numerator of a fraction
+							//				2nd slong	= denominator
+	
+			case 12:		//	0CH		doublet		8 byte double precision  
+							//								  IEEE floating point
+				return RATIONAL;
+			}
+		}
+
+	}
+}
