@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<index>
+	<title>Source of ImageDencoderV1</title>
+	<nodes>
+		<node label="libs">
+		</node>
+		<node label="src" icon="classpathIcon" expanded="true">
+			<node label="com.adobe.images" icon="packageIcon" expanded="true">
+				<node label="JPGEncoder.as" icon="actionScriptIcon" url="source/com/adobe/images/JPGEncoder.as.html"/>
+				<node label="PNGEncoder.as" icon="actionScriptIcon" url="source/com/adobe/images/PNGEncoder.as.html"/>
+			</node>
+			<node label="com.adobe.utils" icon="packageIcon" expanded="true">
+				<node label="DictionaryUtil.as" icon="actionScriptIcon" url="source/com/adobe/utils/DictionaryUtil.as.html"/>
+			</node>
+			<node label="com.WindowsBitmap" icon="packageIcon" expanded="true">
+				<node label="WinBmpDecoder.as" icon="actionScriptIcon" url="source/com/WindowsBitmap/WinBmpDecoder.as.html"/>
+				<node label="WinBmpEncoder.as" icon="actionScriptIcon" url="source/com/WindowsBitmap/WinBmpEncoder.as.html"/>
+				<node label="WinBmpFileHdr.as" icon="actionScriptIcon" url="source/com/WindowsBitmap/WinBmpFileHdr.as.html"/>
+				<node label="WinBmpHdr.as" icon="actionScriptIcon" url="source/com/WindowsBitmap/WinBmpHdr.as.html"/>
+				<node label="WinBmpImg.as" icon="actionScriptIcon" url="source/com/WindowsBitmap/WinBmpImg.as.html"/>
+				<node label="WinBmpPal.as" icon="actionScriptIcon" url="source/com/WindowsBitmap/WinBmpPal.as.html"/>
+			</node>
+			<node label="ImageDencoderV1-app.xml" url="source/ImageDencoderV1-app.xml.txt"/>
+			<node selected="true" label="ImageDencoderV1.mxml" icon="mxmlAppIcon" url="source/ImageDencoderV1.mxml.html"/>
+		</node>
+	</nodes>
+</index>
