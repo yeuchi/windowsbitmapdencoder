@@ -14,9 +14,9 @@
 // ==================================================================
 package com.TIFFbaseline
 {
-	import baseline.IFD;
-	import baseline.Image;
-
+	import flash.display.BitmapData;
+	import flash.utils.ByteArray;
+	
 	public class TIFFbaselineDecoder
 	{
 		protected var hdr:Header;		// file header

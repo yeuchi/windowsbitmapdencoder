@@ -9,22 +9,29 @@
 // History:
 // 23Feb09			start coding								cty
 // ==================================================================
-package baseline
+package com.TIFFbaseline
 {
-	import com.TIFFbaseline.Header;
-	import com.TIFFbaseline.ImageInfo;
+	import flash.display.BitmapData;
+	import flash.utils.ByteArray;
 	
 	public class Image
 	{
+		public static const BPP_1:int = 1;
+		public static const BPP_4:int = 4;
+		public static const BPP_8:int = 8;
+		public static const BPP_24:int = 24;
+		public static const BPP_32:int = 32;
+		
 		public var bitmapData:BitmapData;
 		protected var hdr:Header;
 		protected var info:ImageInfo;
+		protected var bytes:ByteArray;
 		
 /////////////////////////////////////////////////////////////////////
 // initialization
 
 		public function Image(hdr:Header=null,
-							  info:ImageInfo)
+							  info:ImageInfo=null)
 		{
 			this.hdr = hdr;
 			this.info = info;
@@ -45,7 +52,7 @@ package baseline
 		}
 		
 		public function setRef(hdr:Header=null,
-							  info:ImageInfo)
+							  info:ImageInfo=null):void
 		{
 			this.hdr = hdr;
 			this.info = info;
@@ -56,7 +63,7 @@ package baseline
 
 		public function encode():Boolean
 		{
-			
+			return true;
 		}
 		
 		public function decode(bytes:ByteArray):Boolean
@@ -64,24 +71,23 @@ package baseline
 			empty();
 			
 			this.bytes = bytes;
-			bitmapData = new BitmapData(bmpHdr.lbiWidth, bmpHdr.lbiHeight);
-			
-			switch(bmpHdr.ibiBitCount)
+			bitmapData = new BitmapData(info.imageWidth, info.imageLength);
+			switch(info.bitsPerSample)
 			{
-				case WinBmpHdr.BPP_1:
+				case BPP_1:
 				return decode1bpp();
 				
-				case WinBmpHdr.BPP_4:
+				case BPP_4:
 				return decode4bpp();
 				
-				case WinBmpHdr.BPP_8:
+				case BPP_8:
 				return decode8bpp();
 				
-				case WinBmpHdr.BPP_16:
-				return decode16bpp();
-				
-				case WinBmpHdr.BPP_24:
+				case BPP_24:
 				return decode24bpp();
+				
+				case BPP_32:
+				return decode32bpp();
 			}
 			return false;
 		}
@@ -89,43 +95,54 @@ package baseline
 /////////////////////////////////////////////////////////////////////
 // protected decoding
 		
+		protected function getRowList():Array
+		{
+			var so:Array = info.stripOffset;
+			var bc:Array = info.stripByteCount;
+			var rps:Array = info.rowPerStrip;
+			var offsetList:Array = new Array();
+			
+			return offsetList;
+		}
+		
 		protected function decode1bpp():Boolean
 		{
 			// no line padding in TIFF
-			var offset:uint = fileHdr.lbfOffs;
-			var lineWidth:uint = WinBmpImg.byteWidth(bmpHdr.lbiWidth, bmpHdr.ibiBitCount);
-			var Y:int=bmpHdr.lbiHeight-1;
+			var offsetList:Array = getRowList();
+			var lineWidth:uint = info.imageWidth;
+			var palette:Array = info.colorMap;
 			
-			for ( var y:int=0; y<bmpHdr.lbiHeight; y++) {
+			for ( var y:int=0; y<lineWidth; y++) {
+				var offset:uint = offsetList[y];
 				var mask:uint = 0x80;
-				for ( var x:int=0; x<bmpHdr.lbiWidth; x++) {
+				for ( var x:int=0; x<lineWidth; x++) {
 					var i:uint = x/8;
-					var pixel:uint = bytes[offset+lineWidth*Y+i];
+					var pixel:uint = bytes[offset+lineWidth*y+i];
 					var palIndex:int = (pixel&mask)?1:0;
-					var clr:uint = bmpPal.palette[palIndex*4];
-					clr += bmpPal.palette[palIndex*4+1]<<(8);
-					clr += bmpPal.palette[palIndex*4+2]<<(8*2);
+					var clr:uint = palette[palIndex*4];
+					clr += palette[palIndex*4+1]<<(8);
+					clr += palette[palIndex*4+2]<<(8*2);
 					bitmapData.setPixel(x,y, clr);
 					mask = (mask>1)? mask>>1:0x80;
 				}
-				Y --;
 			}
 			return true;
 		}
 		
 		protected function decode4bpp():Boolean
 		{
-			var offset:uint = fileHdr.lbfOffs;
-			var lineWidth:uint = WinBmpImg.byteWidth(bmpHdr.lbiWidth, bmpHdr.ibiBitCount);
+			var offsetList:Array = getRowList();
+			var lineWidth:uint = info.imageWidth;
+			var palette:Array = info.colorMap;
 			var mask:uint;
 			var pixel:uint;
 			var palIndex:uint;
-			var Y:int=bmpHdr.lbiHeight-1;
 			
-			for ( var y:int=0; y<bmpHdr.lbiHeight; y++) {
-				for ( var x:int=0; x<bmpHdr.lbiWidth; x++) {
+			for ( var y:int=0; y<info.imageLength; y++) {
+				var offset:uint = offsetList[y];
+				for ( var x:int=0; x<lineWidth; x++) {
 					var i:uint = x/2;
-					pixel = bytes[offset+lineWidth*Y+i];
+					pixel = bytes[lineWidth*y+i];
 					if (x%2) {
 						mask = 240;
 						palIndex = ( pixel & mask ) >> 4;						
@@ -134,58 +151,70 @@ package baseline
 						mask = 15;
 						palIndex = ( pixel & mask );	
 					}
-					var clr:uint = bmpPal.palette[palIndex*4];
-					clr += bmpPal.palette[palIndex*4+1]<<(8);
-					clr += bmpPal.palette[palIndex*4+2]<<(8*2);
+					var clr:uint = palette[palIndex*4];
+					clr += palette[palIndex*4+1]<<(8);
+					clr += palette[palIndex*4+2]<<(8*2);
 					bitmapData.setPixel(x,y, clr);
 				}
-				Y --;
 			}
 			return true;
 		}
 		
 		protected function decode8bpp():Boolean
 		{
-			var offset:uint = fileHdr.lbfOffs;
-			var lineWidth:uint = WinBmpImg.byteWidth(bmpHdr.lbiWidth, bmpHdr.ibiBitCount);
+			var offsetList:Array = getRowList();
+			var lineWidth:uint = info.imageWidth;
+			var palette:Array = info.colorMap;
 			var palIndex:uint;
 			
-			var Y:int=bmpHdr.lbiHeight-1;
-			for ( var y:int=0; y<bmpHdr.lbiHeight; y++) {
-				for ( var x:int=0; x<bmpHdr.lbiWidth; x++) {
-					palIndex = bytes[offset+lineWidth*Y+x];
-					var clr:uint = bmpPal.palette[palIndex*4];
-					clr += bmpPal.palette[palIndex*4+1]<<(8);
-					clr += bmpPal.palette[palIndex*4+2]<<(8*2);
+			for ( var y:int=0; y<info.imageLength; y++) {
+				var offset:uint = offsetList[y];
+				for ( var x:int=0; x<lineWidth; x++) {
+					palIndex = bytes[offset+lineWidth*y+x];
+					var clr:uint = palette[palIndex*4];
+					clr += palette[palIndex*4+1]<<(8);
+					clr += palette[palIndex*4+2]<<(8*2);
 					bitmapData.setPixel(x,y, clr);
 				}
-				Y --;
 			}
-			return true;
-		}
-		
-		protected function decode16bpp():Boolean
-		{
-			Alert.show("Sorry, not supported!");
 			return true;
 		}
 		
 		protected function decode24bpp():Boolean
 		{
-			var offset:uint = fileHdr.lbfOffs;
+			var offsetList:Array = getRowList();
+			var lineWidth:uint = info.imageWidth;
 			var i:uint = 0;
-			var lineWidth:uint = WinBmpImg.byteWidth(bmpHdr.lbiWidth, bmpHdr.ibiBitCount);
-			var Y:int = 0;
-			for ( var y:int=bmpHdr.lbiHeight-1; y>=0; y--) {
-				for ( var x:int=0; x<bmpHdr.lbiWidth; x++) {
+			for ( var y:int=info.imageLength-1; y>=0; y--) {
+				var offset:uint = offsetList[y];
+				for ( var x:int=0; x<lineWidth; x++) {
 					var clr:uint = uint(bytes[offset+i]);
 					    clr += uint(bytes[offset+i+1]) <<(8);
 					    clr += uint(bytes[offset+i+2]) <<(8*2);
 					bitmapData.setPixel(x,y, clr);
 					i += 3;
 				}
-				i = Y * lineWidth;
-				Y++;
+				i = y * lineWidth;
+			}
+			return true;
+		}
+		
+		//***Need to perform CMYK to RGB conversion
+		protected function decode32bpp():Boolean
+		{
+			var offsetList:Array = getRowList();
+			var lineWidth:uint = info.imageWidth;
+			var i:uint = 0;
+			for ( var y:int=info.imageLength-1; y>=0; y--) {
+				var offset:uint = offsetList[y];
+				for ( var x:int=0; x<lineWidth; x++) {
+					var clr:uint = uint(bytes[offset+i]);
+					    clr += uint(bytes[offset+i+1]) <<(8);
+					    clr += uint(bytes[offset+i+2]) <<(8*2);
+					bitmapData.setPixel(x,y, clr);
+					i += 3;
+				}
+				i = y * lineWidth;
 			}
 			return true;
 		}

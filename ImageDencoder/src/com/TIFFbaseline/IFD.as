@@ -9,9 +9,9 @@
 // History:
 // 23Feb09			start coding								cty
 // ==================================================================
-package baseline
+package com.TIFFbaseline
 {
-	import com.TIFFbaseline.Header;
+	import flash.utils.ByteArray;
 	
 	public class IFD
 	{
@@ -51,7 +51,7 @@ package baseline
 /////////////////////////////////////////////////////////////////////
 // public
 
-		public function get dirEntry(field:uint):DirEntry
+		public function getDirEntry(field:uint):DirEntry
 		{
 			for ( var i:int=0; i<aryDirEntries.length; i++) {
 				var dirEntry:DirEntry = aryDirEntries[i];
@@ -61,24 +61,24 @@ package baseline
 			return null;
 		}
 		
-		public function get dirEntryValue(field:uint):Array
+		public function getDirEntryValue(field:uint):Array
 		{
-			var entry:DirEntry = dirEntry(field);
+			var entry:DirEntry = getDirEntry(field);
 			return entry.aryValue;
 		}
 		
 		public function encode():Boolean
 		{
-			
+			return true;
 		}
 		
 		public function decode(bytes:ByteArray):Boolean
 		{
 			if(!hdr)		return false;
 			if(!isEmpty())	empty();
-			var offset:uint = hdr.SIZE;
+			var offset:uint = Header.SIZE;
 			
-			nNumDE = (hdr.byteOrder == INTEL)?
+			nNumDE = (hdr.byteOrder == Header.INTEL)?
 						bytes[offset] +(uint( bytes[offset+1])<<8):
 						bytes[offset+1] +(uint( bytes[offset])<<8);
 			
@@ -91,7 +91,7 @@ package baseline
 			
 			// not going to this value for baseline... but get it anyway
 			offset += nNumDE*DirEntry.SIZE;
-			lNextIFD = (hdr.byteOrder == INTEL)?
+			lNextIFD = (hdr.byteOrder == Header.INTEL)?
 						bytes[offset]+(uint( bytes[offset+1])<<8)+
 						(uint( bytes[offset+2])<<(8*2))+(uint( bytes[offset+3])<<(8*3)):
 						bytes[offset+3]+(uint( bytes[offset+2])<<8)+

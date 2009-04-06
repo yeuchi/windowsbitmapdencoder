@@ -1,6 +1,6 @@
 package com.TIFFbaseline
 {
-	import baseline.IFD;
+	import flash.utils.ByteArray;
 	
 	public class ImageInfo extends IFD
 	{
@@ -9,13 +9,15 @@ package com.TIFFbaseline
 			super(hdr);
 		}
 		
-		public function empty():void
+		override public function empty():void
 		{
-			
+			super.empty();
 		}
 		
-		public function isEmpty():Boolean
+		override public function isEmpty():Boolean
 		{
+			if(super.isEmpty())
+				return true;
 			return false;
 		}
 		
@@ -24,76 +26,94 @@ package com.TIFFbaseline
 
 		public function get photometricInterpretation():int
 		{
-			var ary:Array = dirEntryValue(Fields.PHOTOMETRICINTERPRETATION);
+			var ary:Array = getDirEntryValue(Fields.PHOTOMETRICINTERPRETATION);
 			if(ary)	return(ary.length)?ary[0]:-1;
 			return -1;
 		}
 		
 		public function get compression():int
 		{
-			var ary:Array = dirEntryValue(Fields.COMPRESSION);
+			var ary:Array = getDirEntryValue(Fields.COMPRESSION);
 			if(ary)	return(ary.length)?ary[0]:-1;
 			return -1;
 		}
 		
 		public function get imageLength():uint
 		{
-			var ary:Array = dirEntryValue(Fields.IMAGELENGTH);
+			var ary:Array = getDirEntryValue(Fields.IMAGELENGTH);
 			if(ary)	return(ary.length)?ary[0]:0;
 			return 0;
 		}
 		
 		public function get imageWidth():uint
 		{
-			var ary:Array = dirEntryValue(Fields.IMAGEWIDTH);
+			var ary:Array = getDirEntryValue(Fields.IMAGEWIDTH);
 			if(ary)	return(ary.length)?ary[0]:0;
 			return 0;
 		}
 		
 		public function get resolutionUint():Number
 		{
-			var ary:Array = dirEntryValue(Fields.RESOLUTIONUNIT);
+			var ary:Array = getDirEntryValue(Fields.RESOLUTIONUNIT);
 			if(ary)	return(ary.length)?ary[0]:-1;
 			return -1;
 		}
 		
 		public function get xResolution():Number
 		{
-			var ary:Array = dirEntryValue(Fields.XRESOLUTION);
+			var ary:Array = getDirEntryValue(Fields.XRESOLUTION);
 			if(ary)	return(ary.length)?ary[0]:-1;
 			return -1;
 		}
 		
 		public function get yResolution():Number
 		{
-			var ary:Array = dirEntryValue(Fields.YRESOLUTION);
+			var ary:Array = getDirEntryValue(Fields.YRESOLUTION);
 			if(ary)	return(ary.length)?ary[0]:-1;
 			return -1;
 		}
 		
 		public function get rowPerStrip():Array
 		{
-			return dirEntryValue(Fields.ROWSPERSTRIP);
+			return getDirEntryValue(Fields.ROWSPERSTRIP);
 		}
 		
 		public function get stripOffset():Array
 		{
-			return dirEntryValue(Fields.STRIPOFFSETS);
+			return getDirEntryValue(Fields.STRIPOFFSETS);
 		}
 		
 		public function get stripByteCount():Array
 		{
-			return dirEntryValue(Fields.STRIPBYTECOUNTS);
+			return getDirEntryValue(Fields.STRIPBYTECOUNTS);
 		}
 		
 		public function get newSubFileType():int
 		{
-			return dirEntryValue(Fields.NEWSUBFILETYPE);
+			var ary:Array = getDirEntryValue(Fields.NEWSUBFILETYPE);
+			var num:int = ary[0] as int;
+			return num;
+		}
+		
+		public function get bitsPerSample():int
+		{
+			var ary:Array = getDirEntryValue(Fields.BITSPERSAMPLE);
+			var num:int = ary[0] as int;
+			return num;
+		}
+		
+		public function get colorMap():Array
+		{
+			return getDirEntryValue(Fields.COLORMAP);
 		}
 		
 		public function get software():String
 		{
-			return dirEntryValue(Fields.SOFTWARE);
+			var ary:Array = getDirEntryValue(Fields.SOFTWARE);
+			var str:String="";
+			for (var i:int=0; i<ary.length; i++)
+				str += ary[i] as String;
+			return str;
 		}
 
 /////////////////////////////////////////////////////////////////////
@@ -112,28 +132,28 @@ package com.TIFFbaseline
 			if (compression != Fields.NO_COMPRESSION)	return false;
 			
 			switch(Fields.PHOTOMETRICINTERPRETATION) {
-				case WHITE_ZERO:
+				case Fields.WHITE_ZERO:
 				break;
 				
-				case BLACK_ZERO:
+				case Fields.BLACK_ZERO:
 				break;
 				
-				case RGB_CLR:
+				case Fields.RGB_CLR:
 				break;
 				
-				case PAL_CLR:
+				case Fields.PAL_CLR:
 				break;
 				
-				case MASK:
+				case Fields.MASK:
 				break;
 				
-				case CMYK_CLR:
+				case Fields.CMYK_CLR:
 				break;
 				
-				case YCbCr:
+				case Fields.YCbCr:
 				break;
 				
-				case CIE_Lab:
+				case Fields.CIE_Lab:
 				break;
 
 				default:
