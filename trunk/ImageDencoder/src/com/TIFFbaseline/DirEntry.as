@@ -9,7 +9,7 @@
 // History:
 // 23Feb09			start coding								cty
 // ==================================================================
-package baseline
+package com.TIFFbaseline
 {
 	import com.TIFFbaseline.Header;
 	
@@ -66,7 +66,7 @@ package baseline
 
 		public function encode():Boolean
 		{
-			
+			return true;
 		}
 		
 		public function decode(bytes:ByteArray,
@@ -79,20 +79,20 @@ package baseline
 			
 			var i:uint = count * SIZE;
 			nTAG 	= (hdr.byteOrder==Header.INTEL)?
-						bytes[offset+i] + uint(bytes[offset+i+1]:
-						bytes[offset+i+1] + uint(bytes[offset+i])<<8;
+						uint(bytes[offset+i]) + uint(bytes[offset+i+1]):
+						uint(bytes[offset+i+1]) + uint(bytes[offset+i])<<8;
 			nType 	= (hdr.byteOrder==Header.INTEL)?
-						bytes[offset+i+2] + uint(bytes[offset+i+3]):
-						bytes[offset+i+3] + uint(bytes[offset+i+2])<<8;
+						uint(bytes[offset+i+2]) + uint(bytes[offset+i+3]):
+						uint(bytes[offset+i+3]) + uint(bytes[offset+i+2])<<8;
 			lCount 	= (hdr.byteOrder==Header.INTEL)?
-						bytes[offset+i+4] + uint(bytes[offset+i+5])<<8+
+						uint(bytes[offset+i+4]) + uint(bytes[offset+i+5])<<8+
 						uint(bytes[offset+i+6])<<(8*2) + uint(bytes[offset+i+7])<<(8*3):
-						bytes[offset+i+7] + uint(bytes[offset+i+6])<<8+
+						uint(bytes[offset+i+7]) + uint(bytes[offset+i+6])<<8+
 						uint(bytes[offset+i+5])<<(8*2) + uint(bytes[offset+i+4])<<(8*3);
 			lValOff = (hdr.byteOrder==Header.INTEL)?
-						bytes[offset+i+8]+uint(bytes[offset+i+9])<<8+
+						uint(bytes[offset+i+8])+uint(bytes[offset+i+9])<<8+
 						uint(bytes[offset+i+10])<<(8*2) + uint(bytes[offset+i+11])<<(8*3):
-						bytes[offset+i+11]+uint(bytes[offset+i+10])<<8+
+						uint(bytes[offset+i+11])+uint(bytes[offset+i+10])<<8+
 						uint(bytes[offset+i+9])<<(8*2) + uint(bytes[offset+i+8])<<(8*3);
 		
 			var len:uint = lCount + byteCount(nType);
@@ -112,15 +112,16 @@ package baseline
 				default:	// numbers
 				var l:uint = byteCount(nType);
 				for (c=0; c<len; c+=l) {
-					var val:Number;
+					var value:Number;
 					for(var k:uint=0; k<l; k++) {
 						j = (hdr.byteOrder == Header.INTEL)? k:len-k;
-						val += bytes[off+c+j]<<(8*j);
+						value += bytes[off+c+j]<<(8*j);
 					}
-					aryValue.push(val); 
+					aryValue.push(value); 
 				}
 				break;
 			}
+			return true;
 		}
 		
 		public function byteCount(nType:uint):uint
@@ -154,6 +155,7 @@ package baseline
 							//								  IEEE floating point
 				return RATIONAL;
 			}
+			return 0;
 		}
 
 	}

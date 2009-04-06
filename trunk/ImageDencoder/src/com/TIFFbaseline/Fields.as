@@ -9,7 +9,7 @@
 // History:
 // 23Feb09			start coding								cty
 // ==================================================================
-package baseline
+package com.TIFFbaseline
 {
 	public class Fields
 	{
@@ -37,7 +37,6 @@ package baseline
 		public static const NO_COMPRESSION:uint	= 1		// default
 		public static const CCITT3_CMPRSSN:uint	= 2		// CCITT group 3
 		public static const PCKBIT_CMPRSSN:uint	= 32773	// pack bits 
-		
 		
 		// PhotometricInterpretation
 		public static const PHOTOMETRICINTERPRETATION:uint=	262	// color space of image
