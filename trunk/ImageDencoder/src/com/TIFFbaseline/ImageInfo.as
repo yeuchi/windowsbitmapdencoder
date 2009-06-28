@@ -1,3 +1,31 @@
+// ==================================================================
+// Module:			Image.as
+//
+// Description:		Image content for Adobe TIFF file v6.0
+//
+// Author(s):		C.T. Yeung
+//
+// History:
+// 23Feb09			start coding								cty
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// ==================================================================
 package com.TIFFbaseline
 {
 	import flash.utils.ByteArray;
@@ -121,45 +149,72 @@ package com.TIFFbaseline
 
 		override public function decode(bytes:ByteArray):Boolean
 		{
-			if (super.decode(bytes))
-				return validate();
+			if (super.decode(bytes)){
+				
+				switch(photometricInterpretation) {
+					case Fields.BLACK_ZERO:
+					case Fields.WHITE_ZERO:
+					break;
+					
+					case Fields.PAL_CLR:
+					break;
+					
+					case Fields.RGB_CLR:
+					break;
+					
+					// below formats not supported as baseline
+					case Fields.CMYK_CLR:
+					break;
+					
+					case Fields.CIE_Lab:
+					break;
+					
+					case Fields.YCbCr:
+					break;
+					
+					case Fields.MASK:
+					break;
+				}
+				return true;				
+			}
 			return false;
 		}
 		
-		public function validate():Boolean
-		{
-			// compression
-			if (compression != Fields.NO_COMPRESSION)	return false;
-			
-			switch(Fields.PHOTOMETRICINTERPRETATION) {
-				case Fields.WHITE_ZERO:
-				break;
-				
-				case Fields.BLACK_ZERO:
-				break;
-				
-				case Fields.RGB_CLR:
-				break;
-				
-				case Fields.PAL_CLR:
-				break;
-				
-				case Fields.MASK:
-				break;
-				
-				case Fields.CMYK_CLR:
-				break;
-				
-				case Fields.YCbCr:
-				break;
-				
-				case Fields.CIE_Lab:
-				break;
-
-				default:
+		public function isValidBlackWhite():Boolean {
+			if( (photometricInterpretation != Fields.WHITE_ZERO) &&
+				(photometricInterpretation != Fields.BLACK_ZERO))
 				return false;
-			}
+				
+			
+			return true;
+		}
 		
+		public function isValidIndexColor():Boolean {
+			if(photometricInterpretation != Fields.PAL_CLR) return false;			
+			return true;
+		}
+		
+		public function isValidRGB():Boolean {
+			if(photometricInterpretation != Fields.RGB_CLR) return false;			
+			return true;
+		}
+		
+		public function isValidCMYK():Boolean {
+			if(photometricInterpretation != Fields.CMYK_CLR) return false;			
+			return true;
+		}
+		
+		public function isValidYCbCr():Boolean {
+			if(photometricInterpretation != Fields.YCbCr) return false;
+			return true;
+		}
+		
+		public function isValidCIELab():Boolean {
+			if(photometricInterpretation != Fields.CIE_Lab) return false;
+			return true;
+		}
+		
+		public function isValidMask():Boolean {
 			return true;
 		}
 	}

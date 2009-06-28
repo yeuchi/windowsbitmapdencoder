@@ -7,7 +7,6 @@
 // Output:			Bitmap data
 //
 // Author(s):		C.T. Yeung
-// Company:			Jostens 2009
 //
 // History:
 // 23Feb09			start coding								cty

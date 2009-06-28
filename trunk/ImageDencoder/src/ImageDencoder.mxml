@@ -40,6 +40,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.TIFFbaseline.TIFFbaselineDecoder;
 			import mx.graphics.codec.JPEGEncoder;
 			import com.adobe.images.JPGEncoder;
 			import com.adobe.images.PNGEncoder;
@@ -61,7 +62,7 @@
 // loading
 			private function onBtnBrowse():void
 			{
-				var filter:FileFilter = new FileFilter("Images", "*.jpg;*.gif;*.png;*.swf;*.bmp");
+				var filter:FileFilter = new FileFilter("Images", "*.jpg;*.gif;*.png;*.swf;*.bmp;*.tif");
 				file = new File(); 
 			  	file = file.resolvePath("C:\\");
 			  	file.addEventListener(Event.SELECT, onFileOpen, false, 0, true);
@@ -73,10 +74,17 @@
 				txtBrowseFile.text = file.url;
 				var str:String     = file.url.toUpperCase();
 
-				if (str.indexOf(".BMP", 0)>0){   
+				if (str.indexOf(".BMP", 0)>0) {   
 					urlloader = new URLLoader();
 					urlloader.dataFormat = URLLoaderDataFormat.BINARY;
 					urlloader.addEventListener(Event.COMPLETE, onLoadWindowBitmap, false, 0, true);
+					urlloader.addEventListener(IOErrorEvent.IO_ERROR, onLoadError, false, 0, true);
+					urlloader.load(new URLRequest(file.url));
+				}
+				else if (str.indexOf(".TIF", 0)>0) {
+					urlloader = new URLLoader();
+					urlloader.dataFormat = URLLoaderDataFormat.BINARY;
+					urlloader.addEventListener(Event.COMPLETE, onLoadAlduTIFF, false, 0, true);
 					urlloader.addEventListener(IOErrorEvent.IO_ERROR, onLoadError, false, 0, true);
 					urlloader.load(new URLRequest(file.url));
 				}
@@ -102,8 +110,27 @@
 				if( winBmp.decode(bytes) ) {
 					imgSrc.source = new Bitmap(winBmp.bitmapData);
 					bitmapData = winBmp.bitmapData;
+					return true;
 				}
-				return true;
+				else {
+					Alert.show("Failed Windows Bmp decoding");
+					return false;
+				}
+			}
+			
+			private function onLoadAlduTIFF(e:Event):Boolean
+			{
+				var bytes:ByteArray = urlloader.data as ByteArray;
+				var tiff:TIFFbaselineDecoder = new TIFFbaselineDecoder();
+				if(tiff.decode(bytes)) {
+					imgSrc.source = new Bitmap(tiff.bitmapData);
+					bitmapData = tiff.bitmapData;
+					return true;
+				}	
+				else {
+					Alert.show("Failed TIFF decoding");
+					return false;	
+				}		
 			}
 			
 			private function onLoadError(e:Event):void
