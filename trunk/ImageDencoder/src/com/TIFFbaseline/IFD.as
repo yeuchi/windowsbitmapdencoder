@@ -99,12 +99,10 @@ package com.TIFFbaseline
 			for ( var i:int=0; i<nNumDE; i++ ) {
 				var dirEntry:DirEntry = new DirEntry(hdr);
 				if(!dirEntry.decode(bytes, i, offset)) return false;
-				offset += DirEntry.SIZE;
 				aryDirEntries.push(dirEntry);
 			}
-			
 			// not going to this value for baseline... but get it anyway
-			offset += nNumDE*DirEntry.SIZE;
+			offset = nNumDE * DirEntry.SIZE;
 			if(hdr.byteOrder != Header.INTEL) 
 				TIFFUtil.flipByteOrder(bytes, offset, 4);
 				
