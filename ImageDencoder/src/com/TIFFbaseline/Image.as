@@ -28,8 +28,8 @@
 // ==================================================================
 package com.TIFFbaseline
 {
-	import flash.display.BitmapData;
 	import flash.utils.ByteArray;
+	import flash.display.BitmapData;
 	
 	public class Image
 	{
@@ -89,7 +89,7 @@ package com.TIFFbaseline
 			
 			this.bytes = bytes;
 			bitmapData = new BitmapData(info.imageWidth, info.imageLength);
-			switch(info.bitsPerSample)
+			switch(info.bitsPerPixel)
 			{
 				case BPP_1:
 				return decode1bpp();
@@ -112,35 +112,24 @@ package com.TIFFbaseline
 /////////////////////////////////////////////////////////////////////
 // protected decoding
 		
-		protected function getRowList():Array
-		{
-			var so:Array = info.stripOffset;
-			var bc:Array = info.stripByteCount;
-			var rps:Array = info.rowPerStrip;
-			var offsetList:Array = new Array();
-			
-			return offsetList;
-		}
-		
 		protected function decode1bpp():Boolean
 		{
-			// no line padding in TIFF
-			var offsetList:Array = getRowList();
-			var lineWidth:uint = info.imageWidth;
-			var palette:Array = info.colorMap;
-			
-			for ( var y:int=0; y<lineWidth; y++) {
-				var offset:uint = offsetList[y];
-				var mask:uint = 0x80;
-				for ( var x:int=0; x<lineWidth; x++) {
-					var i:uint = x/8;
-					var pixel:uint = bytes[offset+lineWidth*y+i];
-					var palIndex:int = (pixel&mask)?1:0;
-					var clr:uint = palette[palIndex*4];
-					clr += palette[palIndex*4+1]<<(8);
-					clr += palette[palIndex*4+2]<<(8*2);
-					bitmapData.setPixel(x,y, clr);
-					mask = (mask>1)? mask>>1:0x80;
+			// non - functional
+			var so:Array = info.stripOffset;
+			var rps:Array = info.rowsPerStrip;
+			var offsetList:Array = new Array();
+			var lineWidth:int = info.imageWidth;
+			var y:int=0;
+			for( var i:int = 0; i<so.length; i++) {
+				for(var j:int = 0; j<rps[i]; j++) {
+					var pos:int = so[i] + lineWidth * j; 
+					y ++;
+					for( var x:int = 0; x<lineWidth; x++) {
+						var clr:uint = uint(bytes[pos+x]);
+						clr += uint(bytes[pos+x])<<8;
+						clr += uint(bytes[pos+x])<<(8*2);
+						bitmapData.setPixel(x,y, clr);
+					}
 				}
 			}
 			return true;
@@ -148,30 +137,22 @@ package com.TIFFbaseline
 		
 		protected function decode4bpp():Boolean
 		{
-			var offsetList:Array = getRowList();
-			var lineWidth:uint = info.imageWidth;
-			var palette:Array = info.colorMap;
-			var mask:uint;
-			var pixel:uint;
-			var palIndex:uint;
-			
-			for ( var y:int=0; y<info.imageLength; y++) {
-				var offset:uint = offsetList[y];
-				for ( var x:int=0; x<lineWidth; x++) {
-					var i:uint = x/2;
-					pixel = bytes[lineWidth*y+i];
-					if (x%2) {
-						mask = 240;
-						palIndex = ( pixel & mask ) >> 4;						
+			// non - functional
+			var so:Array = info.stripOffset;
+			var rps:Array = info.rowsPerStrip;
+			var offsetList:Array = new Array();
+			var lineWidth:int = info.imageWidth;
+			var y:int=0;
+			for( var i:int = 0; i<so.length; i++) {
+				for(var j:int = 0; j<rps[i]; j++) {
+					var pos:int = so[i] + lineWidth * j; 
+					y ++;
+					for( var x:int = 0; x<lineWidth; x++) {
+						var clr:uint = uint(bytes[pos+x]);
+						clr += uint(bytes[pos+x])<<8;
+						clr += uint(bytes[pos+x])<<(8*2);
+						bitmapData.setPixel(x,y, clr);
 					}
-					else {
-						mask = 15;
-						palIndex = ( pixel & mask );	
-					}
-					var clr:uint = palette[palIndex*4];
-					clr += palette[palIndex*4+1]<<(8);
-					clr += palette[palIndex*4+2]<<(8*2);
-					bitmapData.setPixel(x,y, clr);
 				}
 			}
 			return true;
@@ -179,19 +160,22 @@ package com.TIFFbaseline
 		
 		protected function decode8bpp():Boolean
 		{
-			var offsetList:Array = getRowList();
-			var lineWidth:uint = info.imageWidth;
-			var palette:Array = info.colorMap;
-			var palIndex:uint;
-			
-			for ( var y:int=0; y<info.imageLength; y++) {
-				var offset:uint = offsetList[y];
-				for ( var x:int=0; x<lineWidth; x++) {
-					palIndex = bytes[offset+lineWidth*y+x];
-					var clr:uint = palette[palIndex*4];
-					clr += palette[palIndex*4+1]<<(8);
-					clr += palette[palIndex*4+2]<<(8*2);
-					bitmapData.setPixel(x,y, clr);
+			// need look up table
+			var so:Array = info.stripOffset;
+			var rps:Array = info.rowsPerStrip;
+			var offsetList:Array = new Array();
+			var lineWidth:int = info.imageWidth;
+			var y:int=0;
+			for( var i:int = 0; i<so.length; i++) {
+				for(var j:int = 0; j<rps[i]; j++) {
+					var pos:int = so[i] + lineWidth * j; 
+					y ++;
+					for( var x:int = 0; x<lineWidth; x++) {
+						var clr:uint = uint(bytes[pos+x]);
+						clr += uint(bytes[pos+x])<<8;
+						clr += uint(bytes[pos+x])<<(8*2);
+						bitmapData.setPixel(x,y, clr);
+					}
 				}
 			}
 			return true;
@@ -199,19 +183,22 @@ package com.TIFFbaseline
 		
 		protected function decode24bpp():Boolean
 		{
-			var offsetList:Array = getRowList();
-			var lineWidth:uint = info.imageWidth;
-			var i:uint = 0;
-			for ( var y:int=info.imageLength-1; y>=0; y--) {
-				var offset:uint = offsetList[y];
-				for ( var x:int=0; x<lineWidth; x++) {
-					var clr:uint = uint(bytes[offset+i]);
-					    clr += uint(bytes[offset+i+1]) <<(8);
-					    clr += uint(bytes[offset+i+2]) <<(8*2);
-					bitmapData.setPixel(x,y, clr);
-					i += 3;
+			var so:Array = info.stripOffset;
+			var rps:Array = info.rowsPerStrip;
+			var offsetList:Array = new Array();
+			var lineWidth:int = info.imageWidth * 3;
+			var y:int=0;
+			for( var i:int = 0; i<so.length; i++) {
+				for(var j:int = 0; j<rps[i]; j++) {
+					var pos:int = so[i] + lineWidth * j; 
+					y ++;
+					for( var x:int = 0; x<lineWidth; x+=3) {
+						var clr:uint = uint(bytes[pos+x])<<(8*2);
+						clr += uint(bytes[pos+x+1])<<8;
+						clr += uint(bytes[pos+x+2]);
+						bitmapData.setPixel(x/3,y, clr);
+					}
 				}
-				i = y * lineWidth;
 			}
 			return true;
 		}
@@ -219,19 +206,24 @@ package com.TIFFbaseline
 		//***Need to perform CMYK to RGB conversion
 		protected function decode32bpp():Boolean
 		{
-			var offsetList:Array = getRowList();
-			var lineWidth:uint = info.imageWidth;
-			var i:uint = 0;
-			for ( var y:int=info.imageLength-1; y>=0; y--) {
-				var offset:uint = offsetList[y];
-				for ( var x:int=0; x<lineWidth; x++) {
-					var clr:uint = uint(bytes[offset+i]);
-					    clr += uint(bytes[offset+i+1]) <<(8);
-					    clr += uint(bytes[offset+i+2]) <<(8*2);
-					bitmapData.setPixel(x,y, clr);
-					i += 3;
+			// non - functional
+			var so:Array = info.stripOffset;
+			var rps:Array = info.rowsPerStrip;
+			var offsetList:Array = new Array();
+			var lineWidth:int = info.imageWidth * 4;
+			var y:int=0;
+			for( var i:int = 0; i<so.length; i++) {
+				for(var j:int = 0; j<rps[i]; j++) {
+					var pos:int = so[i] + lineWidth * j; 
+					y ++;
+					for( var x:int = 0; x<lineWidth; x+=4) {
+						var clr:uint = uint(bytes[pos+x]);
+						clr += uint(bytes[pos+x+1])<<8;
+						clr += uint(bytes[pos+x+2])<<(8*2);
+					//	clr += uint(bytes[pos+x+3])<<(8*3);
+						bitmapData.setPixel(x,y, clr);
+					}
 				}
-				i = y * lineWidth;
 			}
 			return true;
 		}
