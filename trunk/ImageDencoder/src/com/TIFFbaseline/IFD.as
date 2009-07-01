@@ -81,7 +81,8 @@ package com.TIFFbaseline
 		public function getDirEntryValue(field:uint):Array
 		{
 			var entry:DirEntry = getDirEntry(field);
-			return entry.aryValue;
+			if(entry) return entry.aryValue;
+			return null;
 		}
 		
 		public function decode(bytes:ByteArray):Boolean

@@ -101,7 +101,7 @@ package com.TIFFbaseline
 			return -1;
 		}
 		
-		public function get rowPerStrip():Array
+		public function get rowsPerStrip():Array
 		{
 			return getDirEntryValue(Fields.ROWSPERSTRIP);
 		}
@@ -123,11 +123,29 @@ package com.TIFFbaseline
 			return num;
 		}
 		
-		public function get bitsPerSample():int
+		public function get samplesPerPixel():int
 		{
-			var ary:Array = getDirEntryValue(Fields.BITSPERSAMPLE);
+			var ary:Array = getDirEntryValue(Fields.SAMPLESPERPIXEL);
 			var num:int = ary[0] as int;
 			return num;
+		}
+		
+		public function get bitsPerSample():Array
+		{
+			return getDirEntryValue(Fields.BITSPERSAMPLE);
+		}
+		
+		public function get bitsPerPixel():int
+		{
+			var channels:int = samplesPerPixel;
+			var bpp:int = 0;
+			var bps:Array = bitsPerSample;
+			if(channels > bps.length)	return -1;
+			
+			for(var i:int = 0; i<channels; i++){
+				bpp += bps[i];
+			}
+			return bpp;
 		}
 		
 		public function get colorMap():Array
@@ -154,26 +172,26 @@ package com.TIFFbaseline
 				switch(photometricInterpretation) {
 					case Fields.BLACK_ZERO:
 					case Fields.WHITE_ZERO:
-					break;
+					return isValidBlackWhite();
 					
 					case Fields.PAL_CLR:
-					break;
+					return isValidIndexColor();
 					
 					case Fields.RGB_CLR:
-					break;
+					return isValidRGB();
+					
+					case Fields.CMYK_CLR:
+					return isValidCMYK();
 					
 					// below formats not supported as baseline
-					case Fields.CMYK_CLR:
-					break;
-					
 					case Fields.CIE_Lab:
-					break;
+					return false;
 					
 					case Fields.YCbCr:
-					break;
+					return false;
 					
 					case Fields.MASK:
-					break;
+					return false;
 				}
 				return true;				
 			}
@@ -184,7 +202,6 @@ package com.TIFFbaseline
 			if( (photometricInterpretation != Fields.WHITE_ZERO) &&
 				(photometricInterpretation != Fields.BLACK_ZERO))
 				return false;
-				
 			
 			return true;
 		}
