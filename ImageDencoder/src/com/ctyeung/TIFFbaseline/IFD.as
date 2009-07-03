@@ -97,6 +97,7 @@ package com.ctyeung.TIFFbaseline
 			nNumDE = bytes[offset++] +(uint( bytes[offset++])<<8);
 			
 			// Get all the diretory entries
+			// should replace with dictionary .. refactor
 			for ( var i:int=0; i<nNumDE; i++ ) {
 				var dirEntry:DirEntry = new DirEntry(hdr);
 				if(!dirEntry.decode(bytes, i, offset)) return false;
