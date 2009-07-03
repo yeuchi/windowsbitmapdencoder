@@ -40,13 +40,13 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.TIFFbaseline.TIFFbaselineDecoder;
+			import com.ctyeung.WindowsBitmap.WinBmpEncoder;
+			import com.ctyeung.WindowsBitmap.WinBmpDecoder;
+			import com.ctyeung.TIFFbaseline.TIFFbaselineDecoder;
 			import mx.graphics.codec.JPEGEncoder;
 			import com.adobe.images.JPGEncoder;
 			import com.adobe.images.PNGEncoder;
-			import com.WindowsBitmap.WinBmpEncoder;
 			import mx.controls.Alert;
-			import com.WindowsBitmap.WinBmpDecoder;
 			protected var file:File;
 			protected var loader:Loader;
 			protected var urlloader:URLLoader;
