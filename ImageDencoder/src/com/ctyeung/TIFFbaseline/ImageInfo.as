@@ -201,7 +201,7 @@ package com.ctyeung.TIFFbaseline
 		}
 		
 		public function isValidBlackWhite():Boolean {
-			if( (photometricInterpretation != Fields.WHITE_ZERO) ||
+			if( (photometricInterpretation != Fields.WHITE_ZERO) &&
 				(photometricInterpretation != Fields.BLACK_ZERO)) {
 				Alert.show("Invalid Black & white");			
 				return false;
