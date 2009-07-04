@@ -89,7 +89,7 @@ package com.ctyeung.TIFFbaseline
 		{
 			if(!hdr)		return false;
 			if(!isEmpty())	empty();
-			var offset:uint = Header.SIZE;
+			var offset:uint = hdr.nFirstIFD;
 			
 			if(hdr.byteOrder != Header.INTEL) 
 				TIFFUtil.flipByteOrder(bytes, offset, 2);
