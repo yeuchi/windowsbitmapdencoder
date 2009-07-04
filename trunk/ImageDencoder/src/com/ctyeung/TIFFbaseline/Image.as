@@ -144,24 +144,31 @@ package com.ctyeung.TIFFbaseline
 			var so:Array = info.stripOffset;		// strip offset
 			var rps:Array = info.rowsPerStrip;		// row per strip
 			var lineWidth:int = info.imageWidth;
+			var lineByteWidth:int = (lineWidth%8)?lineWidth/8+1:lineWidth/8;
 			var pal:Array = (info.colorMap)?info.colorMap:defaultGrayMap(1);
 			var y:int=0;
-			var LASTBIT:uint = 0x01<<8;
-			var mask:uint = 0x01;
+			var mask:uint;
+			var clr:uint;
+			var offset:uint;
 			
 			for( var i:int = 0; i<so.length; i++) {
-				for(var j:int = 0; j<rps[i]; j++) {
-					var pos:int = so[i] + lineWidth * j; 
-					y ++;
+				var index:uint = (i>rps.length-1)?rps.length-1:i; 
+				for(var j:int = 0; j<rps[index]; j++) {
+					var pos:uint = so[i] + lineByteWidth*j; 
+					offset = 0;
+					mask = 0x80;
 					for( var x:int = 0; x<lineWidth; x++) {
-						var clr:uint = ((pal[256*3-uint(bytes[pos+x])*3+2])&0xFF);
-						clr += ((pal[256*3-uint(bytes[pos+x])*3+1])&0xFF)<<8;
-						clr += ((pal[256*3-uint(bytes[pos+x])*3])&0xFF)<<(8*2);
+						var pixel:uint = bytes[pos+offset];
+						var palIndex:int = (pixel&mask)?1:0;
+						clr  = pal[palIndex*3]&0xFF;
+						clr += pal[palIndex*3+1]&0xFF00;
+						clr += (pal[palIndex*3+2]&0xFF00)<<8;	
 						bitmapData.setPixel(x,y, clr);
 						
-						if(mask == LASTBIT)	mask = 0x01;
-						else 				mask = mask << 1;
+						offset += (mask>1)?0:1;					// shift to next byte
+						mask = (mask>1)? mask>>1:0x80;			// shift mask for next pixel
 					}
+					y ++;
 				}
 			}
 			return true;
@@ -201,9 +208,9 @@ package com.ctyeung.TIFFbaseline
 			var clr:uint;
 			
 			for( var i:int = 0; i<so.length; i++) {
-				for(var j:int = 0; j<rps[i]; j++) {
+				var rowIndex:uint = (i>rps.length-1)?rps.length-1:i; 
+				for(var j:int = 0; j<rps[rowIndex]; j++) {
 					var pos:int = so[i] + lineWidth * j; 
-					y ++;
 					for( var x:int = 0; x<lineWidth; x++) {
 						var index:uint = uint(bytes[pos+x])*3;
 						clr  = pal[index]&0xFF;
@@ -211,6 +218,7 @@ package com.ctyeung.TIFFbaseline
 						clr += (pal[index+2]&0xFF00)<<8;
 						bitmapData.setPixel(x,y, clr);
 					}
+					y ++;
 				}
 			}
 			return true;
@@ -222,9 +230,9 @@ package com.ctyeung.TIFFbaseline
 			var rps:Array = info.rowsPerStrip;
 			var lineWidth:int = info.imageWidth * 3;
 			var y:int=0;
-			var index:int;
+
 			for( var i:int = 0; i<so.length; i++) {
-				index = (i>rps.length-1)?rps.length-1:i; 
+				var index:uint = (i>rps.length-1)?rps.length-1:i; 
 				for(var j:int = 0; j<rps[index]; j++) {
 					var pos:int = so[i] + lineWidth * j; 
 					for( var x:int = 0; x<lineWidth; x+=3) {
