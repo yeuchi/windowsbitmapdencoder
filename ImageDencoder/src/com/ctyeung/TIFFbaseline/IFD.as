@@ -78,7 +78,23 @@ package com.ctyeung.TIFFbaseline
 			return null;
 		}
 		
-		public function getDirEntryValue(field:uint):Array
+		public function getDirEntryValueNumber(field:uint):Number
+		{
+			var ary:Array = getDirEntryValueArray(field);
+			if(ary)	return(ary.length)?ary[0]:-1;
+			return -1;
+		}
+		
+		public function getDirEntryValueString(field:uint):String
+		{
+			var ary:Array = getDirEntryValueArray(field);
+			var str:String="";
+			for (var i:int=0; i<ary.length; i++)
+				str += ary[i] as String;
+			return str;
+		}
+		
+		public function getDirEntryValueArray(field:uint):Array
 		{
 			var entry:DirEntry = getDirEntry(field);
 			if(entry) return entry.aryValue;

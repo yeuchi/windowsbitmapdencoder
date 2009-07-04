@@ -142,6 +142,12 @@ package com.ctyeung.TIFFbaseline
 		// Page name
 		public static const PAGENAME:uint		= 285
 		
+		// X position 
+		public static const XPOSITION:uint 		= 286	// x offset of an image extract
+		
+		// Y position 
+		public static const YPOSITION:uint 		= 287	// y offset of an image extract
+		
 		// FreeOffsets
 		public static const FREEOFFSETS:uint	= 288	// offset of the unused string
 		
@@ -159,11 +165,36 @@ package com.ctyeung.TIFFbaseline
 		// GrayResponseCurve							
 		public static const GRAYRESPONSECURVE:uint= 291	// optical density of every possible pixel
 														// gray scale data ONLY!
+														
+		// T4 options CCITT group 3 method
+		public static const T4OPTION:uint		= 292	// CCITT group 3 option setting
+		public static const STANDARD_1D_CODING:uint	= 0		// bit 0
+		public static const UNCOMPRESSED_MODE:uint	= 1		// bit 1
+		public static const END_LINE_FILL_BITS:uint	= 0x02	// bit 2
+			
+		// T6 options CCITT group 4 method
+		public static const T6OPTION:uint		= 293	// CCITT group 4 option setting
+		// same as above (except no bit 2)
+		//public static const STANDARD_1D_CODING:uint	= 0		// bit 0	
+		//public static const UNCOMPRESSED_MODE:uint	= 1		// bit 1
+													
 		// ResolutionUnit
 		public static const RESOLUTIONUNIT:uint	= 296	// unit of resolution measure
 		public static const NO_ABSOLUTE:uint	= 1		// for non-square aspect ratio
 		public static const INCH:uint			= 2		// default
 		public static const CENT:uint			= 3		// centimeter
+		
+		// Page number
+		public static const PAGENUMBER:uint		= 297	// page number (especially for FAX)
+
+		// Color response unit
+		public static const COLORRESPONSEUNIT:uint = 297// in conjunction with ColorResponseCurve
+		// 1 = 1/10
+		// 2 = 1/100
+		// 3 = 1/100... so on.
+		
+		// Transfer function
+		public static const TRANSFERFUNCTION:uint = 301	// use with ColorResponseCurve
 		
 		// Software
 		public static const SOFTWARE:uint		= 305	// name & version of software
@@ -177,8 +208,54 @@ package com.ctyeung.TIFFbaseline
 		// HostComputer
 		public static const HOSTCOMPUTER:uint	= 316	// computer at time of image creation
 		
+		// Predictor for LZW
+		public static const PREDICTOR:uint		= 317	// predictor value for LZW
+		public static const NO_PREDICTION:uint	= 1		// no prediction scheme used before coding
+		public static const HORIZON_DIFF:uint	= 2		// horizontal differencing
+		
+		// White point
+		public static const WHITEPOINT:uint		= 318	// default D65 X=0.313, Y=0.329 ?
+		
+		// Primary chromaticities
+		public static const PRIMARYCHROMATICITIES:uint = 319	// primary colors chromaticity
+		// red 		X=0.635, Y=0.34
+		// green 	X=0.305, Y=0.595
+		// blue 	X=0.155, Y=0.07
+
 		// ColorMap				
 		public static const COLORMAP:uint		= 320	// color map for palette color image
+		
+		// Halftone hints
+		public static const HALFTONEHINTS:uint	= 321	// halftone function graylevel range
+
+		// Tile width
+		public static const TILEWIDTH:uint		= 322	// divide image into tiles instead of strips
+		
+		// Tile height
+		public static const TILEHEIGHT:uint		= 323	// divide imgae into tiles instead of strips
+		
+		//Tile offset
+		public static const TILEOFFSETS:uint	= 324	// replace the strip offset tag
+		
+		// Tile byteCount
+		public static const TILEBYTECOUNT:uint 	= 325	// amount of compressed image data per tile in bytes
+		
+		// Ink Set
+		public static const INKSET:uint			= 332	// color model with separation CMYK only
+		public static const CMYK_COLOR:uint		= 1
+		public static const NON_CMYK_COLOR:uint	= 2
+		
+		// Ink name
+		public static const INKNAME:uint		= 333	// for CMYK only, name of the ink
+		
+		// Number of inks
+		public static const NUMBEROFINKS:uint	= 334	// number of colors
+		
+		// Dot range
+		public static const DOTRANGE:uint		= 336	// density of color dots
+		
+		// Target printer
+		public static const TARGETPRINTER:uint	= 337	// name of the output device
 		
 		// ExtraSamples 
 		public static const EXTRASAMPLES:uint	= 338	// description of extra component
@@ -186,6 +263,68 @@ package com.ctyeung.TIFFbaseline
 		public static const ASSOC_ALPHA:uint	= 1		// associated alpha data
 		public static const UNASS_ALPHA:uint	= 2		// unassociated alpha data
 		
+		// Sample format
+		public static const SAMPLEFORMAT:uint	= 339	// how pixel is to be interpreted
+		public static const UNSIGNEDINT:uint	= 1
+		public static const SIGNEDINT:uint		= 2
+		public static const IEEEFLOAT:uint		= 3
+		public static const UNDEFINED:uint		= 4
+
+		// SMin Sample Value
+		public static const SMINSAMPLEVALUE:uint= 340	// how many image planes must be present 
+		
+		// SMax Sample Value
+		public static const SMAXSAMPLEVALUE:uint= 341	// see above
+		
+		// Transfer range
+		public static const TRANSFERRANGE:uint	= 342	// just with transfer function
+		
+		// Y Cb Cr Coefficient
+		public static const YCBCRCOEFFIENT:uint	= 529	// RGB to YCbCr
+		
+		// Y Cb Cr Sub Sampling
+		public static const YCBCRSUBSAMPLING:uint = 530	// subsampling factors 
+		public static const WIDTHEQUAL:uint		  = 1	// width is equal
+		public static const WIDTHHALF:uint		  = 2	// width is half
+		public static const WIDTHQUARTER:uint	  = 4	// width is quarter
+		
+		// Y Cb Cr Positioning
+		public static const YCbCRPOSITIONING:uint = 531	
+		public static const CENTEREDPOS:uint	  = 1
+		public static const COSITED:uint		  = 2
+		
+		// Reference Black White
+		public static const REFERENCEBLACKWHITE:uint = 532 // distance between black to white
+		
+		// JPEG Proc
+		public static const JPEGPROC:uint		= 512
+		public static const BASELINESEQ:uint	= 1		// basline sequential
+		public static const LOSSLESS:uint		= 2		// lossless process with huffman 
+		
+		// JPEG Interchange format
+		public static const JPEGINTERCHANGEFORMAT:uint = 513
+		
+		// JPEG Interchange format length
+		public static const JPEGINTERCHANGEFORMATLENGTH:uint = 514
+		
+		// JPEG Restart Interval
+		public static const JPEGRESTARTINTERVAL:uint = 515
+		
+		// JPEG lossless predictors
+		public static const JPEGLOSSLESSPREDICTORS:uint = 517
+		
+		// JPEG point transform
+		public static const JPEGPOINTTRANSFORM:uint = 518
+		
+		// JPEG Q table
+		public static const JPEGQTABLES:uint 	= 519
+		
+		// JPEG DC Tables 
+		public static const JPEGDCTABLES:uint 	= 520
+		
+		// JPEG AC Tables
+		public static const JPEGACTABLES:uint	= 521
+
 		// Copyright						
 		public static const COPYRIGHT:uint		= 33432	// copyright notice
 	}
