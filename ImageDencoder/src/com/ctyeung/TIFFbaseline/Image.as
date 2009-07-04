@@ -118,23 +118,24 @@ package com.ctyeung.TIFFbaseline
 			var palette:Array = new Array();
 			var nofc:int = Math.pow(2, bitDepth);
 			var clr:uint;
-			for(var i:int=0; i<nofc; i++)
-			{
-				switch(bitDepth) {
-					case BPP_1:
-					if(info.photometricInterpretation == Fields.BLACK_ZERO) clr = (i*255);
-					if(info.photometricInterpretation == Fields.WHITE_ZERO) clr = 255-(i*255);
-					clr += clr << 8;
-					break;
-					
-					case BPP_8:
-					clr = i;
-					clr += clr << 8;
-					break;
+			
+			for(var c:int=0; c<3; c++) {				// cycle through channels, R, G, B
+				for(var i:int=0; i<nofc; i++)
+				{
+					switch(bitDepth) {
+						case BPP_1:
+						if(info.photometricInterpretation == Fields.BLACK_ZERO) clr = (i*255);
+						if(info.photometricInterpretation == Fields.WHITE_ZERO) clr = 255-(i*255);
+						clr += clr << 8;
+						break;
+						
+						case BPP_8:
+						clr = i;
+						clr += clr << 8;
+						break;
+					}
+					palette.push(clr);
 				}
-				palette.push(clr);
-				palette.push(clr);
-				palette.push(clr);
 			}
 			return palette;
 		}
@@ -160,9 +161,9 @@ package com.ctyeung.TIFFbaseline
 					for( var x:int = 0; x<lineWidth; x++) {
 						var pixel:uint = bytes[pos+offset];
 						var palIndex:int = (pixel&mask)?1:0;
-						clr  = pal[palIndex*3]&0xFF;
-						clr += pal[palIndex*3+1]&0xFF00;
-						clr += (pal[palIndex*3+2]&0xFF00)<<8;	
+						clr  = pal[palIndex+4]&0xFF;
+						clr += pal[palIndex+2]&0xFF00;
+						clr += (pal[palIndex]&0xFF00)<<8;
 						bitmapData.setPixel(x,y, clr);
 						
 						offset += (mask>1)?0:1;					// shift to next byte
@@ -228,6 +229,7 @@ package com.ctyeung.TIFFbaseline
 					var pos:int = so[i] + lineWidth * j; 
 					for( var x:int = 0; x<lineWidth; x++) {
 						var index:uint = uint(bytes[pos+x]);
+						// palette entries order in R 0-255, G 0-255, B 0-255
 						clr  = pal[index+512]&0xFF;
 						clr += pal[index+256]&0xFF00;
 						clr += (pal[index]&0xFF00)<<8;
