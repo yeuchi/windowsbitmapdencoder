@@ -95,8 +95,8 @@ package com.ctyeung.TIFFbaseline
 				case BPP_1:
 				return decode1bpp();
 				
-				case BPP_4:
-				return decode4bpp();
+//				case BPP_4:
+//				return decode4bpp();
 				
 				case BPP_8:
 				return decode8bpp();
@@ -173,29 +173,44 @@ package com.ctyeung.TIFFbaseline
 			}
 			return true;
 		}
-		
-		protected function decode4bpp():Boolean
-		{
-			// non - functional
-			var so:Array = info.stripOffset;
-			var rps:Array = info.rowsPerStrip;
-			var offsetList:Array = new Array();
-			var lineWidth:int = info.imageWidth;
-			var y:int=0;
-			for( var i:int = 0; i<so.length; i++) {
-				for(var j:int = 0; j<rps[i]; j++) {
-					var pos:int = so[i] + lineWidth * j; 
-					y ++;
-					for( var x:int = 0; x<lineWidth; x++) {
-						var clr:uint = uint(bytes[pos+x]);
-						clr += uint(bytes[pos+x])<<8;
-						clr += uint(bytes[pos+x])<<(8*2);
-						bitmapData.setPixel(x,y, clr);
-					}
-				}
-			}
-			return true;
-		}
+
+// 		4bpp not supported in TIFF		
+//		private static const LEFT_MASK:uint  = 240;
+//		private static const RIGHT_MASK:uint = 15;
+//		protected function decode4bpp():Boolean
+//		{
+//			var so:Array = info.stripOffset;		// strip offset
+//			var rps:Array = info.rowsPerStrip;		// row per strip
+//			var lineWidth:int = info.imageWidth;
+//			var lineByteWidth:int = (lineWidth%2)?lineWidth/2+1:lineWidth/2;
+//			var pal:Array = (info.colorMap)?info.colorMap:defaultGrayMap(1);
+//			var y:int=0;
+//			var mask:uint;
+//			var clr:uint;
+//			var offset:uint;
+//			
+//			for( var i:int = 0; i<so.length; i++) {
+//				var index:uint = (i>rps.length-1)?rps.length-1:i; 
+//				for(var j:int = 0; j<rps[index]; j++) {
+//					var pos:uint = so[i] + lineByteWidth*j; 
+//					offset = 0;
+//					mask = LEFT_MASK;
+//					for( var x:int = 0; x<lineWidth; x++) {
+//						var pixel:uint = bytes[pos+offset];
+//						var palIndex:int = (x%2)?pixel&mask:(pixel&mask)>>4;
+//						clr  = pal[palIndex*3]&0xFF;
+//						clr += pal[palIndex*3+1]&0xFF00;
+//						clr += (pal[palIndex*3+2]&0xFF00)<<8;	
+//						bitmapData.setPixel(x,y, clr);
+//						
+//						offset += (x%2)?x/2:x/2+1;
+//						mask = (x%2)?RIGHT_MASK:LEFT_MASK;
+//					}
+//					y ++;
+//				}
+//			}
+//			return true;
+//		}
 		
 		protected function decode8bpp():Boolean
 		{
