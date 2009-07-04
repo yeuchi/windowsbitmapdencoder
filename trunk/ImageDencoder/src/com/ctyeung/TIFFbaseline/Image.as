@@ -227,10 +227,10 @@ package com.ctyeung.TIFFbaseline
 				for(var j:int = 0; j<rps[rowIndex]; j++) {
 					var pos:int = so[i] + lineWidth * j; 
 					for( var x:int = 0; x<lineWidth; x++) {
-						var index:uint = uint(bytes[pos+x])*3;
-						clr  = pal[index]&0xFF;
-						clr += pal[index+1]&0xFF00;
-						clr += (pal[index+2]&0xFF00)<<8;
+						var index:uint = uint(bytes[pos+x]);
+						clr  = pal[index+512]&0xFF;
+						clr += pal[index+256]&0xFF00;
+						clr += (pal[index]&0xFF00)<<8;
 						bitmapData.setPixel(x,y, clr);
 					}
 					y ++;

@@ -204,6 +204,7 @@ package com.ctyeung.TIFFbaseline
 			return -1;
 		}
 		
+		// aka Color Response Curve
 		public function get transferFunction():Array {				// Tag 301
 			return getDirEntryValueArray(Fields.TRANSFERFUNCTION);
 		}

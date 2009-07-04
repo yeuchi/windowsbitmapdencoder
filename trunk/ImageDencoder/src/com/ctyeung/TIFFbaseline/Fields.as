@@ -194,7 +194,7 @@ package com.ctyeung.TIFFbaseline
 		// 3 = 1/100... so on.
 		
 		// Transfer function
-		public static const TRANSFERFUNCTION:uint = 301	// use with ColorResponseCurve
+		public static const TRANSFERFUNCTION:uint = 301	// aka ColorResponseCurve
 		
 		// Software
 		public static const SOFTWARE:uint		= 305	// name & version of software
