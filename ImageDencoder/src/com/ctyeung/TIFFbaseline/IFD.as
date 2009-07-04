@@ -28,13 +28,16 @@
 // ==================================================================
 package com.ctyeung.TIFFbaseline
 {
+	import com.adobe.utils.DictionaryUtil;
+	
 	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
 	
 	public class IFD
 	{
 		public var nNumDE:uint;				// (2 bytes) Number of Directory Entry
 		public var lNextIFD:uint;			// (4 bytes) Offset to next Image File Directory
-		public var aryDirEntries:Array		// directory entries container
+		public var dirEntryDict:Dictionary	// directory entries container
 		protected var hdr:Header;
 				
 /////////////////////////////////////////////////////////////////////
@@ -50,7 +53,7 @@ package com.ctyeung.TIFFbaseline
 		{
 			nNumDE			= 0;
 			lNextIFD		= 0; 
-			aryDirEntries = new Array();
+			dirEntryDict	= new Dictionary(); 	
 		}
 		
 		public function isEmpty():Boolean
@@ -68,14 +71,8 @@ package com.ctyeung.TIFFbaseline
 /////////////////////////////////////////////////////////////////////
 // public
 
-		public function getDirEntry(field:uint):DirEntry
-		{
-			for ( var i:int=0; i<aryDirEntries.length; i++) {
-				var dirEntry:DirEntry = aryDirEntries[i];
-				if(dirEntry.nTAG == field)
-					return dirEntry;
-			}
-			return null;
+		public function getDirEntry(field:uint):DirEntry {
+			return dirEntryDict[field];
 		}
 		
 		public function getDirEntryValueNumber(field:uint):Number
@@ -117,7 +114,7 @@ package com.ctyeung.TIFFbaseline
 			for ( var i:int=0; i<nNumDE; i++ ) {
 				var dirEntry:DirEntry = new DirEntry(hdr);
 				if(!dirEntry.decode(bytes, i, offset)) return false;
-				aryDirEntries.push(dirEntry);
+				dirEntryDict[dirEntry.nTAG] = dirEntry;
 			}
 			// not going to this value for baseline... but get it anyway
 			offset = nNumDE * DirEntry.SIZE;
