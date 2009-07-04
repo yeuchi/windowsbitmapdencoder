@@ -52,7 +52,11 @@ package com.ctyeung.TIFFbaseline
 		// Compression			
 		public static const COMPRESSION:uint	= 259	// scheme for image data
 		public static const NO_COMPRESSION:uint	= 1		// default
-		public static const CCITT3_CMPRSSN:uint	= 2		// CCITT group 3
+		public static const RLE_CMPRSSN:uint	= 2		// Huffman RLE
+		public static const CCITT3_CMPRSSN:uint	= 3		// CCITT group 3
+		public static const CCITT4_CMPRSSN:uint	= 4		// CCITT group 4
+		public static const LZW_CMPRSSN:uint	= 5		// LZW
+		public static const JPEG_CMPRSSN:uint	= 6		// JPEG
 		public static const PCKBIT_CMPRSSN:uint	= 32773	// pack bits 
 		
 		// PhotometricInterpretation

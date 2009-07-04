@@ -206,12 +206,7 @@ package com.ctyeung.TIFFbaseline
 				Alert.show("Invalid Black & white");			
 				return false;
 			}	
-			
-			if(compression != Fields.NO_COMPRESSION){	
-				Alert.show("Compression not supported");		
-				return false;
-			}
-			return true;
+			return isValidCompression();
 		}
 		
 		public function isValidIndexColor():Boolean {
@@ -219,12 +214,7 @@ package com.ctyeung.TIFFbaseline
 				Alert.show("Invalid Index Color");		
 				return false;	
 			}
-			
-			if(compression != Fields.NO_COMPRESSION){	
-				Alert.show("Compression not supported");		
-				return false;
-			}		
-			return true;
+			return isValidCompression();
 		}
 		
 		public function isValidRGB():Boolean {
@@ -232,12 +222,7 @@ package com.ctyeung.TIFFbaseline
 				Alert.show("Invalid RGB");		
 				return false;	
 			}	
-			
-			if(compression != Fields.NO_COMPRESSION){	
-				Alert.show("Compression not supported");		
-				return false;
-			}		
-			return true;
+			return isValidCompression();
 		}
 		
 		public function isValidCMYK():Boolean {
@@ -245,12 +230,7 @@ package com.ctyeung.TIFFbaseline
 				Alert.show("Invalid CMYK Color");		
 				return false;	
 			}
-			
-			if(compression != Fields.NO_COMPRESSION){	
-				Alert.show("Compression not supported");		
-				return false;
-			}		
-			return true;
+			return isValidCompression();
 		}
 		
 		public function isValidYCbCr():Boolean {
@@ -258,12 +238,7 @@ package com.ctyeung.TIFFbaseline
 				Alert.show("Invalid YCbCr");		
 				return false;	
 			}
-			
-			if(compression != Fields.NO_COMPRESSION){	
-				Alert.show("Compression not supported");		
-				return false;
-			}
-			return true;
+			return isValidCompression();
 		}
 		
 		public function isValidCIELab():Boolean {
@@ -271,18 +246,17 @@ package com.ctyeung.TIFFbaseline
 				Alert.show("Invalid CIE Lab");		
 				return false;	
 			}
-			
-			if(compression != Fields.NO_COMPRESSION){	
-				Alert.show("Compression not supported");		
-				return false;
-			}
-			return true;
+			return isValidCompression();
 		}
 		
 		public function isValidMask():Boolean {
-			
+			return isValidCompression();
+		}
+		
+		public function isValidCompression():Boolean {
+			// baseline decoder does NOT support compression !
 			if(compression != Fields.NO_COMPRESSION){	
-				Alert.show("Compression not supported");		
+				Alert.show("Compression not supported type= "+compression.toString());			
 				return false;
 			}
 			return true;
