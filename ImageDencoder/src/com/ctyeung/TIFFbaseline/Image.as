@@ -112,16 +112,43 @@ package com.ctyeung.TIFFbaseline
 
 /////////////////////////////////////////////////////////////////////
 // protected decoding
+				
+		protected function defaultGrayMap(bitDepth:int):Array
+		{
+			var palette:Array = new Array();
+			var nofc:int = Math.pow(2, bitDepth);
+			var clr:uint;
+			for(var i:int=0; i<nofc; i++)
+			{
+				switch(bitDepth) {
+					case BPP_1:
+					if(info.photometricInterpretation == Fields.BLACK_ZERO) clr = (i*255);
+					if(info.photometricInterpretation == Fields.WHITE_ZERO) clr = 255-(i*255);
+					clr += clr << 8;
+					break;
+					
+					case BPP_8:
+					clr = i;
+					clr += clr << 8;
+					break;
+				}
+				palette.push(clr);
+				palette.push(clr);
+				palette.push(clr);
+			}
+			return palette;
+		}
 		
 		protected function decode1bpp():Boolean
 		{
 			var so:Array = info.stripOffset;		// strip offset
 			var rps:Array = info.rowsPerStrip;		// row per strip
 			var lineWidth:int = info.imageWidth;
-			var pal:Array = info.colorMap;
+			var pal:Array = (info.colorMap)?info.colorMap:defaultGrayMap(1);
 			var y:int=0;
 			var LASTBIT:uint = 0x01<<8;
 			var mask:uint = 0x01;
+			
 			for( var i:int = 0; i<so.length; i++) {
 				for(var j:int = 0; j<rps[i]; j++) {
 					var pos:int = so[i] + lineWidth * j; 
@@ -131,8 +158,6 @@ package com.ctyeung.TIFFbaseline
 						clr += ((pal[256*3-uint(bytes[pos+x])*3+1])&0xFF)<<8;
 						clr += ((pal[256*3-uint(bytes[pos+x])*3])&0xFF)<<(8*2);
 						bitmapData.setPixel(x,y, clr);
-						
-						
 						
 						if(mask == LASTBIT)	mask = 0x01;
 						else 				mask = mask << 1;
@@ -191,36 +216,24 @@ package com.ctyeung.TIFFbaseline
 			return true;
 		}
 		
-		protected function defaultGrayMap(bitDepth:int):Array
-		{
-			var palette:Array = new Array();
-			var nofc:int = Math.pow(2, bitDepth);
-			var clr:uint;
-			for(var i:int=0; i<nofc; i++)
-			{
-				palette.push(clr=(i<<8)+i);
-				palette.push(clr=(i<<8)+i);
-				palette.push(clr=(i<<8)+i);
-			}
-			return palette;
-		}
-		
 		protected function decode24bpp():Boolean
 		{
 			var so:Array = info.stripOffset;
 			var rps:Array = info.rowsPerStrip;
 			var lineWidth:int = info.imageWidth * 3;
 			var y:int=0;
+			var index:int;
 			for( var i:int = 0; i<so.length; i++) {
-				for(var j:int = 0; j<rps[i]; j++) {
+				index = (i>rps.length-1)?rps.length-1:i; 
+				for(var j:int = 0; j<rps[index]; j++) {
 					var pos:int = so[i] + lineWidth * j; 
-					y ++;
 					for( var x:int = 0; x<lineWidth; x+=3) {
 						var clr:uint = uint(bytes[pos+x])<<(8*2);
 						clr += uint(bytes[pos+x+1])<<8;
 						clr += uint(bytes[pos+x+2]);
 						bitmapData.setPixel(x/3,y, clr);
 					}
+					y ++;
 				}
 			}
 			return true;
