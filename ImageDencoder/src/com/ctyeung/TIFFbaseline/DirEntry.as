@@ -71,12 +71,12 @@ package com.ctyeung.TIFFbaseline
 			if(!hdr) return false;
 			
 			var i:uint = count * SIZE;
+			var len:uint;
 			
 			if(hdr.byteOrder != Header.INTEL) {
 				TIFFUtil.flipByteOrder(bytes, offset+i, 2);
 				TIFFUtil.flipByteOrder(bytes, offset+i+2, 2);
 				TIFFUtil.flipByteOrder(bytes, offset+i+4, 4);
-				TIFFUtil.flipByteOrder(bytes, offset+i+8, 4);
 			}
 			nTAG 	= uint(bytes[offset+i]) + uint(bytes[offset+i+1]<<8);
 			nType 	= uint(bytes[offset+i+2]) + uint(bytes[offset+i+3]<<8);
@@ -84,21 +84,32 @@ package com.ctyeung.TIFFbaseline
 			lCount += (uint(bytes[offset+i+5])<<8);
 			lCount += (uint(bytes[offset+i+6])<<(8*2)); 
 			lCount += (uint(bytes[offset+i+7])<<(8*3));
+			
+			if(hdr.byteOrder != Header.INTEL) {
+				len = lCount*byteCount(nType);
+				len = (len > 4 )? 4:len;
+				TIFFUtil.flipByteOrder(bytes, offset+i+8, len);
+			}	
 			lValOff = uint(bytes[offset+i+8]);
 			lValOff+= (uint(bytes[offset+i+9])<<8);
 			lValOff+= (uint(bytes[offset+i+10])<<(8*2)); 
 			lValOff+= (uint(bytes[offset+i+11])<<(8*3));
 		
-			var len:uint = lCount * byteCount(nType);
+			len = lCount * byteCount(nType);
+			if(len <= LONG){
+				aryValue.push(lValOff);
+				return true;			
+			} 
+			
 			var c:uint=0;
-			var j:uint=0;
-			var off:uint = ( len > LONG )? lValOff:offset+i+VALOFF_POS; 
+			
+			if(hdr.byteOrder != Header.INTEL)
+				TIFFUtil.flipByteOrder(bytes, lValOff, len);
 			
 			switch(nType) {
 				case ASCII:	// text
 				for (c=0; c<len; c++) {
-					j = (hdr.byteOrder == Header.INTEL)? c:len-c;
-					var val:String = bytes[off+j];
+					var val:String = bytes[lValOff+c];
 					aryValue.push(val); 
 				}
 				break;
@@ -108,8 +119,7 @@ package com.ctyeung.TIFFbaseline
 				for (c=0; c<len; c+=l) {
 					var value:Number=0;
 					for(var k:uint=0; k<l; k++) {
-						j = (hdr.byteOrder == Header.INTEL)? k:len-k;
-						value += bytes[off+c+j]<<(8*j);
+						value += bytes[lValOff+c+k]<<(8*k);
 					}
 					aryValue.push(value); 
 				}

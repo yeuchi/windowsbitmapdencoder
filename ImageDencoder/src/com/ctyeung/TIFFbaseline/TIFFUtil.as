@@ -33,17 +33,19 @@ package com.ctyeung.TIFFbaseline
 	public class TIFFUtil
 	{
 		public static function flipByteOrder(byteArray:ByteArray, 	// byte array
-											 startPos:int,			// index from start of array
-											 length:int)			// number of bytes to flip
+											 startPos:uint,			// index from start of array
+											 length:uint)			// number of bytes to flip
 											 :Boolean				// success or not
 		{
-			var byte:int;
+			var byte:uint;
+			var flipVal:uint;
 			
 			try {			
-				for (var i:int=0; i<length; i++) {
+				for (var i:uint=0; i<length/2; i++) {
 					byte = byteArray[i+startPos];
-					byteArray[i+startPos] = byteArray[startPos+length-i];
-					byteArray[startPos+length-i] = byte;
+					flipVal = byteArray[startPos+length-i-1];
+					byteArray[i+startPos] = flipVal;
+					byteArray[startPos+length-i-1] = byte;
 				}
 				return true;
 			}
