@@ -90,8 +90,10 @@ package com.ctyeung.TIFFbaseline
 			if(byteOrder != INTEL)
 				TIFFUtil.flipByteOrder(bytes, 4, 4);
 				
-			nFirstIFD =  uint(bytes[4])+(uint(bytes[5]) << 8)+
-						 (uint(bytes[6]) << (8*2))+(uint(bytes[7]) << (8*3));
+			nFirstIFD =  uint(bytes[4]);
+			nFirstIFD += (uint(bytes[5]) << 8);
+			nFirstIFD += (uint(bytes[6]) << (8*2));
+			nFirstIFD += (uint(bytes[7]) << (8*3));
 			
 			if(nFirstIFD>bytes.length)	return false;
 				
