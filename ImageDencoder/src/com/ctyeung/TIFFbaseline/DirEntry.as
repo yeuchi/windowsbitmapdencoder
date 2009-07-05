@@ -102,9 +102,12 @@ package com.ctyeung.TIFFbaseline
 			} 
 			
 			var c:uint=0;
-			
-			if(hdr.byteOrder != Header.INTEL)
-				TIFFUtil.flipByteOrder(bytes, lValOff, len);
+			if(hdr.byteOrder != Header.INTEL){
+				var byteWidth:int = byteCount(nType);
+				for(var j:int=0; j<lCount; j++) {
+					TIFFUtil.flipByteOrder(bytes, lValOff+j*byteWidth, byteWidth);
+				}
+			}
 			
 			switch(nType) {
 				case ASCII:	// text
