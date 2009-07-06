@@ -89,7 +89,7 @@ package com.ctyeung.TIFFbaseline
 			empty();
 			
 			this.bytes = bytes;
-			bitmapData = new BitmapData(info.imageWidth, info.imageLength);
+			bitmapData = new BitmapData(info.imageWidth, info.imageLength, false, 0x00);
 			switch(info.bitsPerPixel)
 			{
 				case BPP_1:
@@ -102,7 +102,8 @@ package com.ctyeung.TIFFbaseline
 				return decode8bpp();
 				
 				case BPP_24:
-				return decode24bpp();
+				if(info.planarConfiguration == Fields.CHUNCKY)	return decode24bpp();
+				else return decode24bppPlanes();
 				
 				case BPP_32:
 				return decode32bpp();
@@ -247,18 +248,48 @@ package com.ctyeung.TIFFbaseline
 			var rps:Array = info.rowsPerStrip;
 			var lineWidth:int = info.imageWidth * 3;
 			var y:int=0;
-
+			var clr:uint;
+			
 			for( var i:int = 0; i<so.length; i++) {
 				var index:uint = (i>rps.length-1)?rps.length-1:i; 
 				for(var j:int = 0; j<rps[index]; j++) {
 					var pos:int = so[i] + lineWidth * j; 
 					for( var x:int = 0; x<lineWidth; x+=3) {
-						var clr:uint = uint(bytes[pos+x])<<(8*2);
+						clr  = uint(bytes[pos+x])<<(8*2);
 						clr += uint(bytes[pos+x+1])<<8;
 						clr += uint(bytes[pos+x+2]);
 						bitmapData.setPixel(x/3,y, clr);
 					}
+					y++;
+				}
+			}
+			return true;
+		}
+		
+		protected function decode24bppPlanes():Boolean
+		{
+			var so:Array = info.stripOffset;
+			var rps:Array = info.rowsPerStrip;
+			var lineWidth:int = info.imageWidth;
+			var y:int=0;
+			var clr:uint;
+			var shift:uint=8*2;
+			
+			for( var i:int = 0; i<so.length; i++) {
+				for(var j:int = 0; j<rps[index]; j++) {
+					var index:uint = (i>rps.length-1)?rps.length-1:i; 
+					var pos:int = so[i] + lineWidth * j; 
+					for( var x:int = 0; x<lineWidth; x++) {
+						clr = bitmapData.getPixel(x,y);
+						clr  += uint(bytes[pos+x])<<shift;
+						bitmapData.setPixel(x,y, clr);
+					}
 					y ++;
+				}
+				if(y >= info.imageLength) {
+					y = 0;
+					shift -= 8;
+					if(shift<0) return true;
 				}
 			}
 			return true;
