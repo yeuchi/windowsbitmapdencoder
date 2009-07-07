@@ -7,6 +7,10 @@
 //
 // History:
 // 23Feb09			start coding								cty
+// 06Jul09			handle 1, 8, 24 bpp - basline
+//					handle Big & Little endian
+//					handle interlace and planar pixels			cty
+
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
 // "Software"), to deal in the Software without restriction, including

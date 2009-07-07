@@ -10,6 +10,9 @@
 //
 // History:
 // 23Feb09			start coding								cty
+// 06Jul09			handle 1, 8, 24 bpp - basline
+//					handle Big & Little endian
+//					handle interlace and planar pixels			cty
 // ==================================================================
 package com.ctyeung.TIFFbaseline
 {
