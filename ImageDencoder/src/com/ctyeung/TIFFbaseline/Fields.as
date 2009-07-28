@@ -34,6 +34,13 @@ package com.ctyeung.TIFFbaseline
 {
 	public class Fields
 	{
+		public static const BPP_1:int = 1;
+		public static const BPP_4:int = 4;
+		public static const BPP_8:int = 8;
+		public static const BPP_24:int = 24;
+		public static const BPP_32:int = 32;
+		public static const PAL_WHITE:Number = 65535;
+		
 		// NewSubfileType
 		public static const NEWSUBFILETYPE:uint = 254;	// kind of data in this subfile
 		public static const DEFAULT:uint 		= 0		// see TIFF specs.  	
