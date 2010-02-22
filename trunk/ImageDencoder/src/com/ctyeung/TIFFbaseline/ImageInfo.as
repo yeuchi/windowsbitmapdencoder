@@ -462,8 +462,7 @@ package com.ctyeung.TIFFbaseline
 		
 		public function isValidCompression():Boolean {
 			// baseline decoder does NOT support compression !
-			if((compression != Fields.LZW_CMPRSSN)&&
-			   (compression != Fields.NO_COMPRESSION)){	
+			if(compression != Fields.NO_COMPRESSION){	
 				Alert.show("Compression not supported type= "+compression.toString());			
 				return false;
 			}
