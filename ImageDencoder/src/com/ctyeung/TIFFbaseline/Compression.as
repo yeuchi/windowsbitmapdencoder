@@ -2,12 +2,15 @@
 // Module:			Compression.as
 //
 // Description:		Handle decompression
+//					Please look to TIFF6 project for compression.
+//					currently in development -> LZW, ZIP 21Feb10
+//
+//					If you wish to add your own decompression, handle it here.
 //
 // Author(s):		C.T. Yeung
 //
 // History:
 // 27Jul09			work in progress - no compression works		cty
-//					working on LZW								cty
 
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -46,7 +49,7 @@ package com.ctyeung.TIFFbaseline
 							  info:ImageInfo=null) {
 			this.hdr  = hdr;
 			this.info = info;
-			rowOfPixels = new ByteArray();
+			setLineByteWid();
 		}
 		
 		public function empty():void {
@@ -93,14 +96,13 @@ package com.ctyeung.TIFFbaseline
 			
 			switch(info.compression) {
 				case Fields.NO_COMPRESSION:
+				rowOfPixels = new ByteArray();
 				return buildRowIndex();				
-				
-				case Fields.LZW_CMPRSSN:
-				var lzw:CompressionLZW = new CompressionLZW();
-				bytes = lzw.decode(bytes);
-				return true;
+					
+				default:
+				return false;
 			}
-			return false;
+			return true;
 		}
 		
 		protected function buildRowIndex():Boolean {
@@ -123,6 +125,5 @@ package com.ctyeung.TIFFbaseline
 			rowOfPixels.writeBytes(bytes, rowPos[index], _lineByteWid);
 			return rowOfPixels;
 		}
-
 	}
 }

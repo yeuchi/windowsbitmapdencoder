@@ -80,7 +80,6 @@ package com.ctyeung.TIFFbaseline
 			bitmapData = new BitmapData(info.imageWidth, info.imageLength, false, 0x00);
 			
 			cmp = new Compression(hdr, info);
-			cmp.setLineByteWid();
 			if(!cmp.decode(bytes)) return false;
 			
 			switch(info.bitsPerPixel)

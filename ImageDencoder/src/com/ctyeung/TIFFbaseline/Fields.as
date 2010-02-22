@@ -68,6 +68,7 @@ package com.ctyeung.TIFFbaseline
 		public static const CCITT4_CMPRSSN:uint	= 4		// CCITT group 4
 		public static const LZW_CMPRSSN:uint	= 5		// LZW
 		public static const JPEG_CMPRSSN:uint	= 6		// JPEG
+		public static const ZIP_CMPRSSN:uint 	= 8		// ZIP compression (build in ByteArray)
 		public static const PCKBIT_CMPRSSN:uint	= 32773	// pack bits 
 		
 		// PhotometricInterpretation
