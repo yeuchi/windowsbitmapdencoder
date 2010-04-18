@@ -52,6 +52,14 @@ package com.ctyeung.TIFF6
 							   lineByteWid:int) {
 			super(info, bytesCmp, lineByteWid);
 			empty();
+			pixels = new ByteArray();
+		}
+		
+		override public function dispose():void {
+			super.dispose();
+			pixels = null;
+			table  = null;
+			dictionary = null;
 		}
 		
 		override public function empty():void {
@@ -62,11 +70,10 @@ package com.ctyeung.TIFF6
 		}
 		
 		override public function decode(bytesCmp:ByteArray,	// [in] compressed data
-								offset:int,			// [in] start position
-								length:int)			// [in] length of block
-								:ByteArray {		// [out] uncompressed data
+										offset:int,			// [in] start position
+										length:int)			// [in] length of block
+										:ByteArray {		// [out] uncompressed data
 
-			pixels = new ByteArray();
 			var oldCode:uint;
 			var code:uint;
 			var outString:Array;

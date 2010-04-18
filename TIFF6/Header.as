@@ -49,6 +49,7 @@ package com.ctyeung.TIFF6
 	
 		public function Header()
 		{
+			empty();
 		}
 		
 		public function empty():void
@@ -59,8 +60,10 @@ package com.ctyeung.TIFF6
 		
 		public function isEmpty():Boolean
 		{
-				return false;
-			return true;
+			if(("" == sType)&&
+			   (0 == nFirstIFD))
+				return true;
+			return false;
 		}
 		
 /////////////////////////////////////////////////////////////////////
