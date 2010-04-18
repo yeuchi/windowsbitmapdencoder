@@ -5,7 +5,6 @@ package com.ctyeung.TIFF6
 	public class CmpBase
 	{
 		protected var info:ImageInfo;
-		protected var bytesCmp:ByteArray;
 		protected var bytes:ByteArray;
 		protected var lineByteWid:int;
 		
@@ -13,10 +12,10 @@ package com.ctyeung.TIFF6
 		protected var blockIndex:int;	// index within a decompressed strip
 		
 		public function CmpBase(info:ImageInfo,
-								bytesCmp:ByteArray,
+								bytes:ByteArray,
 							   lineByteWid:int) {
 			this.info 		 = info;
-			this.bytesCmp 	 = bytesCmp;
+			this.bytes 	 	 = bytes;
 			this.lineByteWid = lineByteWid;
 			this.stripIndex  = 0;
 			bytes = new ByteArray();
@@ -24,7 +23,6 @@ package com.ctyeung.TIFF6
 		
 		public function dispose():void {
 			info 	 = null;
-			bytesCmp = null;
 			bytes 	 = null;
 		}
 		
@@ -39,23 +37,23 @@ package com.ctyeung.TIFF6
 			return false;
 		}
 		
-		public function decode(	bytesCmp:ByteArray,	// [in] compressed data
-								offset:int,			// [in] start position
-								length:int)			// [in] length of block
-								:ByteArray {		// [out] uncompressed data
+		protected function decode(	offset:uint,			// [in] start position
+									length:uint)			// [in] length of block
+									:ByteArray {		// [out] uncompressed data
 			return null;
 		}
 		
-		public function getRow(index:int):ByteArray {
-			if(!bytes) 
-				return null;
-			
+		// get a row of pixels
+		public function getRow(	index:int)				// [in] row index
+								:ByteArray {			// [out] 1 row decompressed pixels
+			var pxls:ByteArray;
+
 			if(stripIndex < (info.stripOffset.length)) {
-				bytes = decode(	bytesCmp, 
-								info.stripOffset[stripIndex], 
-								info.stripByteCount[stripIndex]);
+				
+				pxls = decode(	info.stripOffset[stripIndex] as uint, 
+								info.stripByteCount[stripIndex] as uint);
 				stripIndex ++;
-				return bytes;
+				return pxls;
 			}
 			return null;
 		}
