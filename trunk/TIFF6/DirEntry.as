@@ -11,7 +11,7 @@
 //					handle Big & Little endian
 //					handle interlace and planar pixels			cty
 // ==================================================================
-package com.ctyeung.TIFFbaseline
+package com.ctyeung.TIFF6
 {
 	import flash.utils.ByteArray;
 	

@@ -1,4 +1,4 @@
-package com.ctyeung.TIFFbaseline
+package com.ctyeung.TIFF6
 {
 	import flash.utils.ByteArray;
 	
@@ -9,6 +9,10 @@ package com.ctyeung.TIFFbaseline
 		protected var bytes:ByteArray;
 		protected var lineByteWid:int;
 		
+		protected var stripIndex:int;	// info.strip
+		protected var blockIndex:int;	// index within a decompressed strip
+		protected var rowOfPixels:ByteArray;
+		
 		public function CmpBase(info:ImageInfo,
 								bytesCmp:ByteArray,
 							   lineByteWid:int) {
@@ -16,6 +20,9 @@ package com.ctyeung.TIFFbaseline
 			this.bytesCmp = bytesCmp;
 			this.lineByteWid = lineByteWid;
 			bytes = new ByteArray();
+			
+			stripIndex = 0;
+			rowOfPixels = new ByteArray();
 		}
 		
 		public function empty():void {
@@ -35,9 +42,26 @@ package com.ctyeung.TIFFbaseline
 			return null;
 		}
 		
-		public function getRow(	index:int)
-								:ByteArray {
-			return null;
+		public function getRow(index:int)
+			:ByteArray {
+			if(!bytes) 
+				return null;
+			if(blockIndex > (bytes.length-lineByteWid))
+				return null;
+			
+			rowOfPixels.position = 0;
+			rowOfPixels.writeBytes(bytes, blockIndex, lineByteWid);
+			blockIndex += lineByteWid;
+			
+			if(blockIndex >= bytes.length-1) {
+				if(stripIndex < (info.stripOffset.length-1)) {
+					stripIndex ++;
+					blockIndex = 0;
+					bytes = decode(bytesCmp, info.stripOffset[stripIndex], 
+						info.stripByteCount[stripIndex]);
+				}
+			}
+			return rowOfPixels;
 		}
 
 	}

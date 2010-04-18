@@ -27,25 +27,19 @@
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ==================================================================
-package com.ctyeung.TIFFbaseline
+package com.ctyeung.TIFF6
 {
 	import flash.utils.ByteArray;
 	import flash.utils.CompressionAlgorithm;
 	
 	public class CmpZIP extends CmpBase
 	{
-		protected var stripIndex:int;	// info.strip
-		protected var blockIndex:int;	// index within a decompressed strip
-		protected var rowOfPixels:ByteArray;
-		
 		public function CmpZIP(info:ImageInfo,
 							   bytesCmp:ByteArray,
 							   lineByteWid:int) {
 							   	
 			super(info, bytesCmp, lineByteWid);
 			bytes = decode(bytesCmp, info.stripOffset[0], info.stripByteCount[0]);
-			stripIndex = 0;
-			rowOfPixels = new ByteArray();
 		}
 		
 		override public function decode(bytesCmp:ByteArray,	// [in] compressed data
@@ -56,28 +50,6 @@ package com.ctyeung.TIFFbaseline
 			bytes.writeBytes(bytesCmp, offset, length);
 			bytes.uncompress();//CompressionAlgorithm.DEFLATE);
 			return bytes;
-		}
-		
-		override public function getRow(index:int)
-										:ByteArray {
-			if(!bytes) 
-				return null;
-			if(blockIndex > (bytes.length-lineByteWid))
-				return null;
-				
-			rowOfPixels.position = 0;
-			rowOfPixels.writeBytes(bytes, blockIndex, lineByteWid);
-			blockIndex += lineByteWid;
-			
-			if(blockIndex >= bytes.length-1) {
-				if(stripIndex < (info.stripOffset.length-1)) {
-					stripIndex ++;
-					blockIndex = 0;
-					bytes = decode(bytesCmp, info.stripOffset[stripIndex], 
-											 info.stripByteCount[stripIndex]);
-				}
-			}
-			return rowOfPixels;
 		}
 	}
 }

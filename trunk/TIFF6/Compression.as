@@ -29,9 +29,11 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ==================================================================
 
-package com.ctyeung.TIFFbaseline
+package com.ctyeung.TIFF6
 {
 	import flash.utils.ByteArray;
+	
+	import mx.controls.Alert;
 	
 	public class Compression
 	{
@@ -44,7 +46,7 @@ package com.ctyeung.TIFFbaseline
 		protected var decoder:CmpBase;
 		
 		public function Compression(hdr:Header=null,
-							  info:ImageInfo=null) {
+							        info:ImageInfo=null) {
 			this.hdr  = hdr;
 			this.info = info;
 			setLineByteWid();
@@ -107,6 +109,7 @@ package com.ctyeung.TIFFbaseline
 				break;
 					
 				default:
+				Alert.show("Compression not supported");
 				return false;
 			}
 			return true;
