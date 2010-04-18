@@ -14,12 +14,12 @@
 //					handle Big & Little endian
 //					handle interlace and planar pixels			cty
 // ==================================================================
-package com.ctyeung.TIFFbaseline
+package com.ctyeung.TIFF6
 {
 	import flash.display.BitmapData;
 	import flash.utils.ByteArray;
 	
-	public class TIFFbaselineDecoder
+	public class TIFF6Decoder
 	{
 		protected var hdr:Header;		// file header
 		protected var info:ImageInfo;	// info, palette, etc
@@ -28,7 +28,7 @@ package com.ctyeung.TIFFbaseline
 /////////////////////////////////////////////////////////////////////
 // initialization
 
-		public function TIFFbaselineDecoder()
+		public function TIFF6Decoder()
 		{
 			hdr  = new Header();
 			info = new ImageInfo(hdr);
@@ -61,9 +61,9 @@ package com.ctyeung.TIFFbaseline
 		public function decode(bytes:ByteArray):Boolean
 		{
 			if(hdr.decode(bytes))
-					if(info.decode(bytes))
-						if(img.decode(bytes))
-							return true; 
+				if(info.decode(bytes))
+					if(img.decode(bytes))
+						return true; 
 			return false;
 		}
 	}

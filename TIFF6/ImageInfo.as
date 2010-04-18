@@ -30,7 +30,7 @@
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ==================================================================
-package com.ctyeung.TIFFbaseline
+package com.ctyeung.TIFF6
 {
 	import flash.utils.ByteArray;
 	
@@ -377,7 +377,6 @@ package com.ctyeung.TIFFbaseline
 		override public function decode(bytes:ByteArray):Boolean
 		{
 			if (super.decode(bytes)){
-				
 				switch(photometricInterpretation) {
 					case Fields.BLACK_ZERO:
 					case Fields.WHITE_ZERO:
@@ -413,7 +412,7 @@ package com.ctyeung.TIFFbaseline
 				Alert.show("Invalid Black & white");			
 				return false;
 			}	
-			return isValidCompression();
+			return true;
 		}
 		
 		public function isValidIndexColor():Boolean {
@@ -421,7 +420,7 @@ package com.ctyeung.TIFFbaseline
 				Alert.show("Invalid Index Color");		
 				return false;	
 			}
-			return isValidCompression();
+			return true;
 		}
 		
 		public function isValidRGB():Boolean {
@@ -429,7 +428,7 @@ package com.ctyeung.TIFFbaseline
 				Alert.show("Invalid RGB");		
 				return false;	
 			}	
-			return isValidCompression();
+			return true;
 		}
 		
 		public function isValidCMYK():Boolean {
@@ -437,7 +436,7 @@ package com.ctyeung.TIFFbaseline
 				Alert.show("Invalid CMYK Color");		
 				return false;	
 			}
-			return isValidCompression();
+			return true;
 		}
 		
 		public function isValidYCbCr():Boolean {
@@ -445,7 +444,7 @@ package com.ctyeung.TIFFbaseline
 				Alert.show("Invalid YCbCr");		
 				return false;	
 			}
-			return isValidCompression();
+			return true;
 		}
 		
 		public function isValidCIELab():Boolean {
@@ -453,11 +452,11 @@ package com.ctyeung.TIFFbaseline
 				Alert.show("Invalid CIE Lab");		
 				return false;	
 			}
-			return isValidCompression();
+			return true;
 		}
 		
 		public function isValidMask():Boolean {
-			return isValidCompression();
+			return true;
 		}
 		
 		public function isValidCompression():Boolean {
