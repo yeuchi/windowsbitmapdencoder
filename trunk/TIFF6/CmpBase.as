@@ -11,22 +11,26 @@ package com.ctyeung.TIFF6
 		
 		protected var stripIndex:int;	// info.strip
 		protected var blockIndex:int;	// index within a decompressed strip
-		protected var rowOfPixels:ByteArray;
 		
 		public function CmpBase(info:ImageInfo,
 								bytesCmp:ByteArray,
 							   lineByteWid:int) {
-			this.info = info;
-			this.bytesCmp = bytesCmp;
+			this.info 		 = info;
+			this.bytesCmp 	 = bytesCmp;
 			this.lineByteWid = lineByteWid;
+			this.stripIndex  = 0;
 			bytes = new ByteArray();
-			
-			stripIndex = 0;
-			rowOfPixels = new ByteArray();
+		}
+		
+		public function dispose():void {
+			info 	 = null;
+			bytesCmp = null;
+			bytes 	 = null;
 		}
 		
 		public function empty():void {
-			if(bytes.length) 	bytes.clear();
+			if(bytes.length) 	
+				bytes.clear();
 		}
 		
 		public function isEmpty():Boolean {
@@ -42,26 +46,18 @@ package com.ctyeung.TIFF6
 			return null;
 		}
 		
-		public function getRow(index:int)
-			:ByteArray {
+		public function getRow(index:int):ByteArray {
 			if(!bytes) 
 				return null;
-			if(blockIndex > (bytes.length-lineByteWid))
-				return null;
 			
-			rowOfPixels.position = 0;
-			rowOfPixels.writeBytes(bytes, blockIndex, lineByteWid);
-			blockIndex += lineByteWid;
-			
-			if(blockIndex >= bytes.length-1) {
-				if(stripIndex < (info.stripOffset.length-1)) {
-					stripIndex ++;
-					blockIndex = 0;
-					bytes = decode(bytesCmp, info.stripOffset[stripIndex], 
-						info.stripByteCount[stripIndex]);
-				}
+			if(stripIndex < (info.stripOffset.length)) {
+				bytes = decode(	bytesCmp, 
+								info.stripOffset[stripIndex], 
+								info.stripByteCount[stripIndex]);
+				stripIndex ++;
+				return bytes;
 			}
-			return rowOfPixels;
+			return null;
 		}
 
 	}

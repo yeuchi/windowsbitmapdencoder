@@ -51,6 +51,17 @@ package com.ctyeung.TIFF6
 			this.info = info;
 			setLineByteWid();
 		}
+		public function dispose():void {
+			hdr 		= null;
+			info 		= null;
+			bytes 		= null;
+			rowPos 		= null;
+			rowOfPixels = null;
+			if(decoder) {
+				decoder.dispose();
+				decoder = null;
+			}
+		}
 		
 		public function empty():void {
 			bytes = null;
@@ -104,9 +115,9 @@ package com.ctyeung.TIFF6
 				decoder = new CmpLZW(info, bytes, _lineByteWid);
 				break;
 								
-				case Fields.ZIP_CMPRSSN:
-				decoder = new CmpZIP(info, bytes, _lineByteWid);
-				break;
+				//case Fields.ZIP_CMPRSSN:
+				//decoder = new CmpZIP(info, bytes, _lineByteWid);
+				//break;
 					
 				default:
 				Alert.show("Compression not supported");

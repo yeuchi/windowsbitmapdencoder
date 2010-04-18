@@ -50,6 +50,20 @@ package com.ctyeung.TIFF6
 			this.hdr  = hdr;
 			this.info = info;
 		}
+		
+		public function dispose():void {
+			hdr = null;
+			info = null;
+			bytes = null;
+			if (cmp) {
+				cmp.dispose();
+				cmp = null;
+			}
+			if(bitmapData) {
+				bitmapData.dispose();
+				bitmapData = null;
+			}
+		}
 
 		public function empty():void {
 			if(bitmapData)
@@ -97,6 +111,8 @@ package com.ctyeung.TIFF6
 				case Fields.BPP_32:
 				return decode32bpp();
 			}
+			cmp.dispose();
+			cmp = null;
 			return false;
 		}
 
@@ -183,14 +199,16 @@ package com.ctyeung.TIFF6
 			return true;
 		}
 		
-		protected function decode24bpp():Boolean
-		{
+		protected function decode24bpp():Boolean {
 			var clr:uint;
 			var len:int = info.imageLength;
 			var wid:int = info.imageWidth*3;
-			
 			var rowOfPixels:ByteArray = cmp.getRow(0);
+			
 			for( var y:int = 0; y<len; y++) { 
+				if(!rowOfPixels)
+					return false;
+				
 				for( var x:int = 0; x<wid; x+=3) {
 					clr  = uint(rowOfPixels[x])<<(8*2);
 					clr += uint(rowOfPixels[x+1])<<8;

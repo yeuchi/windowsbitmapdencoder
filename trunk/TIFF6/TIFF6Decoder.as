@@ -35,6 +35,18 @@ package com.ctyeung.TIFF6
 			img  = new Image(hdr, info);
 		}
 		
+		public function dispose():void {
+			hdr = null;
+			if(info) {
+				info.dispose();
+				info = null;
+			}
+			if(img) {
+				img.dispose();
+				img = null;
+			}
+		}
+		
 		public function empty():void
 		{
 			hdr.empty();

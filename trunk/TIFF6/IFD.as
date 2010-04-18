@@ -53,6 +53,11 @@ package com.ctyeung.TIFF6
 			this.hdr = hdr;
 		}
 		
+		public function dispose():void {
+			dirEntryDict = null;
+			hdr = null;
+		}
+		
 		public function empty():void
 		{
 			nNumDE			= 0;
