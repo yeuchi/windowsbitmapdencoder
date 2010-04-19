@@ -107,7 +107,9 @@ package com.ctyeung.TIFF6
 				}
 				else if(isInTable(code)) {
 						writeString(stringFromCode(code));
-						addString2Table(stringFromCode(oldCode) + firstChar(stringFromCode(code)));
+						var str:Array = stringFromCode(oldCode);
+						str.push(firstChar(stringFromCode(code)));
+						addString2Table(str);
 						oldCode = code;
 				}
 				else {
