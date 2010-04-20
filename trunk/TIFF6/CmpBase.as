@@ -10,14 +10,17 @@ package com.ctyeung.TIFF6
 		
 		protected var stripIndex:int;	// info.strip
 		protected var blockIndex:int;	// index within a decompressed strip
+		public var numChannels:int = 1;
 		
 		public function CmpBase(info:ImageInfo,
 								bytes:ByteArray,
-							   lineByteWid:int) {
+							    lineByteWid:int,
+								numChannels:int) {
 			this.info 		 = info;
 			this.bytes 	 	 = bytes;
 			this.lineByteWid = lineByteWid;
 			this.stripIndex  = 0;
+			this.numChannels = numChannels;
 			bytes = new ByteArray();
 		}
 		

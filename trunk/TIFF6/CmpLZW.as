@@ -37,27 +37,66 @@ package com.ctyeung.TIFF6
 	public class CmpLZW extends CmpBase
 	{
 		// entry index for bit depth
-		private static const BITS9MAX:int		= 512;
-		private static const BITS10MAX:int		= 1024;
-		private static const BITS11MAX:int		= 2048;
-		private static const BITS12MAX:int		= 4094;
+		private static const BITS9MAX:uint		= 512;
+		private static const BITS10MAX:uint		= 1024;
+		private static const BITS11MAX:uint		= 2048;
+		private static const BITS12MAX:uint		= 4094;
 		
 		private static const MAX_TABLE_LEN:int 	= BITS12MAX;	// max number of table entries
 		private static const CLEAR_CODE:uint 	= 256;			// index 256 is reserved for clear code
 		private static const END_CODE:uint 		= 257;			// index 257 is reserved for end code
 		
-		private var bitIndex:Number;							// current bit index
+		private var bitIndex:uint;								// current bit index
 		private var table:Array;								// look up table
 		private var pixels:ByteArray;							// [out] product image pixels 
+		protected var pixel:Array;
 		protected var dictionary:Dictionary;
 		protected var key:uint;
+		protected var pxlIndex:int;
 		
 		public function CmpLZW(info:ImageInfo,
 							   bytesCmp:ByteArray,
-							   lineByteWid:int) {
-			super(info, bytesCmp, lineByteWid);
+							   lineByteWid:int,
+							   numChannels:int) {
+			super(info, bytesCmp, lineByteWid, numChannels);
 			empty();
 			pixels = new ByteArray();
+			initPixel();
+		}
+		
+		protected function initPixel():void {
+			switch(numChannels) {
+				case 1:
+					pixel = [0];
+					break;
+				
+				case 3:
+					pixel = [0,0,0];
+					break;
+				
+				case 4:
+					pixel = [0,0,0,0];
+					break;
+			}
+			pxlIndex = 0;
+		}
+		
+		protected function updatePixel(value:int):int {
+			pixel[pxlIndex] += value;
+			pixel[pxlIndex] = (pixel[pxlIndex]>255)?pixel[pxlIndex]-256:pixel[pxlIndex];
+			return pixel[pxlIndex];
+		}
+		
+		protected function updateIndex():void {
+			switch(numChannels) {
+				case 3:
+					pxlIndex = (pxlIndex==2)?0:pxlIndex+1;
+					break;
+				
+				case 4:
+					pxlIndex = (pxlIndex==3)?0:pxlIndex+1;
+					break;
+			}
 		}
 		
 		override public function dispose():void {
@@ -77,7 +116,6 @@ package com.ctyeung.TIFF6
 		override protected function decode( offset:uint,		// [in] start position
 											length:uint)		// [in] length of block
 											:ByteArray {		// [out] uncompressed data
-
 			var oldCode:uint;
 			var code:uint;
 			var outString:Array;
@@ -87,18 +125,22 @@ package com.ctyeung.TIFF6
 				return null;
 			
 			initTable();									// create table
-			oldCode = getNextCode(offset);					// 1st code
+			oldCode = updatePixel(getNextCode(offset));		// 1st code
+			updateIndex();
 			writeString([oldCode]);							// 1st pixel
 			
 			for(var c:int=2; c<length; c++) {
-				code = getNextCode(offset);
+				code = updatePixel(getNextCode(offset));
+				updateIndex();
+				
 				if(code == END_CODE)	
 					return pixels;							// done !
 				
 				if(code == CLEAR_CODE) {
 					initTable();
 					
-					code = getNextCode(offset);
+					code = updatePixel(getNextCode(offset));
+					updateIndex();
 					if(code == END_CODE) 
 						break;
 					
@@ -135,7 +177,7 @@ package com.ctyeung.TIFF6
 			var bitOffset:uint 	= bitIndex % 8;
 			var mask:uint 		= 0x80 >> bitOffset;
 			
-			for (var i:int = 0; i<codeLen; i++) {			// step through all the bits
+			for (var i:uint = 0; i<codeLen; i++) {			// step through all the bits
 				bit =   bytes[offset+byteIndex+bytePos(i, bitOffset)] & mask;
 				bit /=  mask;
 				bit <<= (codeLen-1) - i;						// build the code
@@ -146,13 +188,13 @@ package com.ctyeung.TIFF6
 			return code;
 		}
 		
-		protected function get codeLen():int {
+		protected function get codeLen():uint {
 			var len:uint = dictionary.length;
 			if(len < BITS9MAX) 	return 9;
 			if(len < BITS10MAX)	return 10;
 			if(len < BITS11MAX)	return 11;
 			if(len < BITS12MAX)	return 12;
-			return -1;			// should never get here
+			return 0;			// should never get here
 		}
 		
 		protected function bytePos(bits:uint,
