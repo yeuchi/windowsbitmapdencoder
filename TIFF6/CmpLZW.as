@@ -82,9 +82,15 @@ package com.ctyeung.TIFF6
 		}
 		
 		protected function updatePixel(value:int):int {
+			if(value>=CLEAR_CODE)
+				return value;
+			
+			// for differencing of adjacent pixel
 			pixel[pxlIndex] += value;
-			pixel[pxlIndex] = (pixel[pxlIndex]>255)?pixel[pxlIndex]-256:pixel[pxlIndex];
-			return pixel[pxlIndex];
+			var retVal:int = pixel[pxlIndex] = (pixel[pxlIndex]>255)?pixel[pxlIndex]-256:pixel[pxlIndex];
+			updateIndex();
+			
+			return retVal;
 		}
 		
 		protected function updateIndex():void {
@@ -124,23 +130,16 @@ package com.ctyeung.TIFF6
 			if(CLEAR_CODE != getNextCode(offset))
 				return null;
 			
-			initTable();									// create table
-			oldCode = updatePixel(getNextCode(offset));		// 1st code
-			updateIndex();
-			writeString([oldCode]);							// 1st pixel
-			
-			for(var c:int=2; c<length; c++) {
+			for(var c:int=0; c<length; c++) {
 				code = updatePixel(getNextCode(offset));
-				updateIndex();
 				
 				if(code == END_CODE)	
-					return pixels;							// done !
+					return pixels;								// done !
 				
 				if(code == CLEAR_CODE) {
 					initTable();
-					
 					code = updatePixel(getNextCode(offset));
-					updateIndex();
+					
 					if(code == END_CODE) 
 						break;
 					
@@ -148,11 +147,11 @@ package com.ctyeung.TIFF6
 					oldCode = code;
 				}
 				else if(isInTable(code)) {
-						writeString(stringFromCode(code));
-						var str:Array = stringFromCode(oldCode);
-						str.push(firstChar(stringFromCode(code)));
-						addString2Table(str);
-						oldCode = code;
+					writeString(stringFromCode(code));
+					var str:Array = stringFromCode(oldCode);
+					str.push(firstChar(stringFromCode(code)));
+					addString2Table(str);
+					oldCode = code;
 				}
 				else {
 					outString = stringFromCode(oldCode);
@@ -180,7 +179,7 @@ package com.ctyeung.TIFF6
 			for (var i:uint = 0; i<codeLen; i++) {			// step through all the bits
 				bit =   bytes[offset+byteIndex+bytePos(i, bitOffset)] & mask;
 				bit /=  mask;
-				bit <<= (codeLen-1) - i;						// build the code
+				bit <<= (codeLen-1) - i;					// build the code
 				code += bit;
 				mask = (mask == 0x01)?0x80:mask >> 1;		// bit shift 
 			}
@@ -227,6 +226,10 @@ package com.ctyeung.TIFF6
 
 			for(var i:int=0; i<str.length; i++) {
 				pixels.writeByte(str[i]);
+				if(str.length>1) {
+					pixel[pxlIndex] = str[i];
+					updateIndex();
+				}
 			}
 		}
 		
