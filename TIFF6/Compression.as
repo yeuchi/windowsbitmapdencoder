@@ -44,6 +44,7 @@ package com.ctyeung.TIFF6
 		protected var _lineByteWid:int;
 		protected var rowOfPixels:ByteArray;
 		protected var decoder:CmpBase;
+		protected var numOfChannels:int;
 		
 		public function Compression(hdr:Header=null,
 							        info:ImageInfo=null) {
@@ -85,18 +86,22 @@ package com.ctyeung.TIFF6
 			switch(info.bitsPerPixel)
 			{
 				case Fields.BPP_1:
+				numOfChannels = 1;
 				_lineByteWid = (lineWidth%8)?lineWidth/8+1:lineWidth/8;
 				break;
 				
 				case Fields.BPP_8:
+				numOfChannels = 1;
 				_lineByteWid = lineWidth;
 				break;
 				
 				case Fields.BPP_24:
+				numOfChannels = 3;
 				_lineByteWid = (info.planarConfiguration == Fields.CHUNCKY)?lineWidth * 3:lineWidth;
 				break;
 				
 				case Fields.BPP_32:
+				numOfChannels = 4;
 				_lineByteWid = lineWidth * 4;
 				break;
 			}
@@ -112,7 +117,7 @@ package com.ctyeung.TIFF6
 				return buildRowIndex();				
 				
 				case Fields.LZW_CMPRSSN:
-				decoder = new CmpLZW(info, bytes, _lineByteWid);
+				decoder = new CmpLZW(info, bytes, _lineByteWid, numOfChannels);
 				break;
 								
 				//case Fields.ZIP_CMPRSSN:
