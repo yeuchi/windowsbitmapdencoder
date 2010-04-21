@@ -42,7 +42,7 @@ package com.ctyeung.TIFF6
 		protected var bytes:ByteArray;
 		protected var rowPos:Array;
 		protected var _lineByteWid:int;
-		protected var rowOfPixels:ByteArray;
+		protected var stripOfPixels:ByteArray;
 		protected var decoder:CmpBase;
 		protected var numOfChannels:int;
 		
@@ -53,11 +53,11 @@ package com.ctyeung.TIFF6
 			setLineByteWid();
 		}
 		public function dispose():void {
-			hdr 		= null;
-			info 		= null;
-			bytes 		= null;
-			rowPos 		= null;
-			rowOfPixels = null;
+			hdr 		  = null;
+			info 		  = null;
+			bytes 		  = null;
+			rowPos 		  = null;
+			stripOfPixels = null;
 			if(decoder) {
 				decoder.dispose();
 				decoder = null;
@@ -113,7 +113,7 @@ package com.ctyeung.TIFF6
 			switch(info.compression) {
 				case Fields.NO_COMPRESSION:
 				decoder = null;
-				rowOfPixels = new ByteArray();
+				stripOfPixels = new ByteArray();
 				return buildRowIndex();				
 				
 				case Fields.LZW_CMPRSSN:
@@ -146,13 +146,13 @@ package com.ctyeung.TIFF6
 			return true;
 		}
 		
-		public function getRow(index:int):ByteArray {
+		public function getStrip(index:int):ByteArray {
 			if(decoder)
-				return decoder.getRow(index);
+				return decoder.getStrip(index);
 			else {
-				rowOfPixels.position = 0;
-				rowOfPixels.writeBytes(bytes, rowPos[index], _lineByteWid);
-				return rowOfPixels;
+				stripOfPixels.position = 0;
+				stripOfPixels.writeBytes(bytes, rowPos[index], _lineByteWid);
+				return stripOfPixels;
 			}
 		}
 
