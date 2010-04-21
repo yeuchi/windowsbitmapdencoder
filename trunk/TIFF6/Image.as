@@ -31,8 +31,8 @@
 // ==================================================================
 package com.ctyeung.TIFF6
 {
-	import flash.utils.ByteArray;
 	import flash.display.BitmapData;
+	import flash.utils.ByteArray;
 	
 	public class Image
 	{
@@ -151,27 +151,34 @@ package com.ctyeung.TIFF6
 			var pal:Array = (info.colorMap)?info.colorMap:defaultGrayMap(1);
 			var mask:uint;
 			var clr:uint;
-			var offset:uint;
 			
 			var len:int = info.imageLength;
 			var wid:int = info.imageWidth;
+			var stripIndex:int = 0;
+			var i:uint = 0;
+			var stripOfPixels:ByteArray = cmp.getStrip(stripIndex);
+			if(!stripOfPixels)
+				return false;
 			
-			var rowOfPixels:ByteArray = cmp.getRow(0);
 			for( var y:int = 0; y<len; y++) {  
-				offset = 0;
 				mask = 0x80;
 				for( var x:int = 0; x<wid; x++) {
-					var pixel:uint = rowOfPixels[offset];
+					var pixel:uint = stripOfPixels[i];
 					var palIndex:int = (pixel&mask)?1:0;
 					clr  = pal[palIndex+4]&0xFF;
 					clr += pal[palIndex+2]&0xFF00;
 					clr += (pal[palIndex]&0xFF00)<<8;
 					bitmapData.setPixel(x,y, clr);
 					
-					offset += (mask>1)?0:1;					// shift to next byte
+					i += (mask>1)?0:1;						// shift to next byte
 					mask = (mask>1)? mask>>1:0x80;			// shift mask for next pixel
 				}
-				rowOfPixels = cmp.getRow(y);
+				if((i>=stripOfPixels.length)&&(y<(len-1))) {
+					stripOfPixels = cmp.getStrip(stripIndex++);
+					i = 0;
+					if(!stripOfPixels)
+						return false;
+				}
 			}
 			return true;
 		}
@@ -183,18 +190,27 @@ package com.ctyeung.TIFF6
 			var clr:uint;
 			var len:int = info.imageLength;
 			var wid:int = info.imageWidth;
+			var i:uint = 0;
+			var stripIndex:uint = 0;
+			var stripOfPixels:ByteArray = cmp.getStrip(stripIndex);
+			if(!stripOfPixels)
+				return false;
 			
-			var rowOfPixels:ByteArray = cmp.getRow(0);
 			for( var y:int = 0; y<len; y++) { 
 				for( var x:int = 0; x<wid; x++) { 
-					var index:uint = uint(rowOfPixels[x]);
+					var index:uint = uint(stripOfPixels[i++]);
 					// palette entries order in R 0-255, G 0-255, B 0-255
 					clr  = pal[index+512]&0xFF;
 					clr += pal[index+256]&0xFF00;
 					clr += (pal[index]&0xFF00)<<8;
 					bitmapData.setPixel(x,y, clr);
 				}
-				rowOfPixels = cmp.getRow(y);
+				if((i>=stripOfPixels.length)&&(y<(len-1))) {
+					stripOfPixels = cmp.getStrip(stripIndex++);
+					i = 0;
+					if(!stripOfPixels)
+						return false;
+				}
 			}
 			return true;
 		}
@@ -203,19 +219,25 @@ package com.ctyeung.TIFF6
 			var clr:uint;
 			var len:int = info.imageLength;
 			var wid:int = info.imageWidth*3;
-			var rowOfPixels:ByteArray = cmp.getRow(0);
+			var stripIndex:int = 0;
+			var i:int = 0;
+			var stripOfPixels:ByteArray = cmp.getStrip(stripIndex);
+			if(!stripOfPixels)
+				return false;
 			
 			for( var y:int = 0; y<len; y++) { 
-				if(!rowOfPixels)
-					return false;
-				
 				for( var x:int = 0; x<wid; x+=3) {
-					clr  = uint(rowOfPixels[x])<<(8*2);
-					clr += uint(rowOfPixels[x+1])<<8;
-					clr += uint(rowOfPixels[x+2]);
+					clr  = uint(stripOfPixels[i++])<<(8*2);
+					clr += uint(stripOfPixels[i++])<<8;
+					clr += uint(stripOfPixels[i++]);
 					bitmapData.setPixel(x/3,y, clr);
 				}
-				rowOfPixels = cmp.getRow(y);
+				if((i>=stripOfPixels.length)&&(y<(len-1))) {
+					stripOfPixels = cmp.getStrip(stripIndex++);
+					i = 0;
+					if(!stripOfPixels)
+						return false;
+				}
 			}
 			return true;
 		}
@@ -227,12 +249,16 @@ package com.ctyeung.TIFF6
 			var clr:uint;
 			var len:int = info.imageLength;
 			var wid:int = info.imageWidth;
+			var stripIndex:int = 0;
+			var i:int = 0;
+			var stripOfPixels:ByteArray = cmp.getStrip(stripIndex);
+			if(!stripOfPixels)
+				return false;
 			
-			var rowOfPixels:ByteArray = cmp.getRow(0);
 			for( var y:int = 0; y<len*3; y++) {  
 				for( var x:int = 0; x<wid; x++) {
 					clr = bitmapData.getPixel(x,Y);
-					clr  += uint(rowOfPixels[x])<<shift;
+					clr  += uint(stripOfPixels[i++])<<shift;
 					bitmapData.setPixel(x,Y, clr);
 				}
 				if(Y >= len) {
@@ -241,7 +267,12 @@ package com.ctyeung.TIFF6
 					//if(shift<0) return true;
 				}
 				Y++;
-				rowOfPixels = cmp.getRow(y);
+				if((i>=stripOfPixels.length)&&(y<(len-1))) {
+					stripOfPixels = cmp.getStrip(stripIndex++);
+					i = 0;
+					if(!stripOfPixels)
+						return false;
+				}
 			}
 			return true;
 		}

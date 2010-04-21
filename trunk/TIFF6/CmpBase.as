@@ -8,7 +8,6 @@ package com.ctyeung.TIFF6
 		protected var bytes:ByteArray;
 		protected var lineByteWid:int;
 		
-		protected var stripIndex:int;	// info.strip
 		protected var blockIndex:int;	// index within a decompressed strip
 		public var numChannels:int = 1;
 		
@@ -19,7 +18,6 @@ package com.ctyeung.TIFF6
 			this.info 		 = info;
 			this.bytes 	 	 = bytes;
 			this.lineByteWid = lineByteWid;
-			this.stripIndex  = 0;
 			this.numChannels = numChannels;
 			bytes = new ByteArray();
 		}
@@ -47,15 +45,14 @@ package com.ctyeung.TIFF6
 		}
 		
 		// get a row of pixels
-		public function getRow(	index:int)				// [in] row index
+		public function getStrip(index:int)				// [in] row index
 								:ByteArray {			// [out] 1 row decompressed pixels
 			var pxls:ByteArray;
 
-			if(stripIndex < (info.stripOffset.length)) {
+			if(index < (info.stripOffset.length)) {
 				
-				pxls = decode(	info.stripOffset[stripIndex] as uint, 
-								info.stripByteCount[stripIndex] as uint);
-				stripIndex ++;
+				pxls = decode(	info.stripOffset[index] as uint, 
+								info.stripByteCount[index] as uint);
 				return pxls;
 			}
 			return null;
