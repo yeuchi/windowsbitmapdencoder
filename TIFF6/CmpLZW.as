@@ -127,9 +127,6 @@ package com.ctyeung.TIFF6
 			var outString:Array;
 			bitIndex = 0;
 			
-			if(CLEAR_CODE != getNextCode(offset))
-				return null;
-			
 			for(var c:int=0; c<length; c++) {
 				code = updatePixel(getNextCode(offset));
 				
