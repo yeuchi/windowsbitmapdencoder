@@ -36,6 +36,7 @@ package com.ctyeung.Targa
 
 	public class TGAHeader
 	{
+		public var length:int = TGATypeEnum.HEADER_LEN;
 		public var lenID:int;			// length of image ID, 1 byte: 0 - 255 bytes (0=no id)
 		public var clrMapType:Boolean;	// Color map type, 1 byte: 	0 (no color map) 
 										//							1 (color map included)
@@ -82,24 +83,24 @@ package com.ctyeung.Targa
 			lenID	  		=  bytes[0];
 			clrMapType 		= (bytes[1])?true:false;
 			imgType			=  bytes[2];
-			clrMapOrgn		=  uint(bytes[3]);
-			clrMapOrgn		+= uint(bytes[4])<<8;
-			clrMapLen		=  uint(bytes[5]);
-			clrMapLen		+= uint(bytes[6])<<8;
+			clrMapOrgn		=  uint(bytes[3]) +
+							   (uint(bytes[4])<<8);
+			clrMapLen		=  uint(bytes[5]) +
+							   (uint(bytes[6])<<8);
 			clrMapEntrySze	= bytes[7];
-			xOrgn			= uint(bytes[8]);
-			xOrgn			+= uint(bytes[9])<<8;
-			yOrgn			= uint(bytes[10]);
-			yOrgn			+= uint(bytes[11])<<8;
-			imgWid			= uint(bytes[12]);
-			imgWid			+= uint(bytes[13])<<8;
-			imgLen			= uint(bytes[14]);
-			imgLen			+= uint(bytes[15])<<8;
+			xOrgn			= uint(bytes[8]) +
+							  (uint(bytes[9])<<8);
+			yOrgn			= uint(bytes[10]) +
+							  (uint(bytes[11])<<8);
+			imgWid			= uint(bytes[12]) +
+							  (uint(bytes[13])<<8);
+			imgLen			= uint(bytes[14]) +
+							  (uint(bytes[15])<<8);
 			bpp				= bytes[16];
 			imageDescriptor	= bytes[17];
 			
-			if(lenID) {
-			}
+			if(lenID) 
+				this.length + lenID;
 			return true;
 		}
 		
