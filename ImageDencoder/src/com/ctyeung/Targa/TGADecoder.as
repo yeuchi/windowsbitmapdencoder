@@ -47,9 +47,6 @@ package com.ctyeung.Targa
 			hdr = new TGAHeader();
 			pal = new TGAPalette(hdr);
 			img = new TGAImageData(hdr, pal);
-			
-			pal.setRef(hdr);
-			img.setRef(hdr, pal);
 		}
 		
 /////////////////////////////////////////////////////////////////////
