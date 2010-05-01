@@ -2,6 +2,7 @@ package com.ctyeung.Targa
 {
 	public class TGATypeEnum
 	{
+		public static const HEADER_LEN:int 			= 18;
 		// screen origin
 		public static const ORIG_LOW_LEFT:int 		= 0;
 		public static const ORIG_LOW_RIGHT:int 		= 1;

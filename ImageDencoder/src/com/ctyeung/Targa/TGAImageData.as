@@ -40,6 +40,7 @@ package com.ctyeung.Targa
 		public var bmd:BitmapData;
 		public var hdr:TGAHeader;
 		public var pal:TGAPalette;
+		protected var offset:uint;
 		
 		public function TGAImageData(hdr:TGAHeader,
 									 pal:TGAPalette) {
@@ -70,7 +71,7 @@ package com.ctyeung.Targa
 		
 		public function decode(bytes:ByteArray):Boolean {
 			empty();
-			
+			offset = hdr.length + pal.length;
 			switch(hdr.imgType) {
 				// type 3
 				case TGATypeEnum.IMG_TYPE_MONO_NO_CMP:
@@ -91,7 +92,7 @@ package com.ctyeung.Targa
 		// 1 bpp
 		protected function decodeMono(bytes:ByteArray):Boolean {
 			var mask:uint=0x80;
-			var index:uint = 0;
+			var index:uint = offset;
 			bmd = new BitmapData(hdr.imgWid, hdr.imgWid);
 			
 			for(var y:uint=0; y<hdr.imgLen; y++) {
@@ -109,7 +110,7 @@ package com.ctyeung.Targa
 		protected function decodeClrMap(bytes:ByteArray):Boolean {
 			bmd = new BitmapData(hdr.imgWid, hdr.imgWid, true);
 			for(var y:uint=0; y<hdr.imgLen; y++) {
-				var index:uint = y*hdr.imgWid;
+				var index:uint = y*hdr.imgWid+offset;
 				for(var x:uint=0; x<hdr.imgWid; x++) {
 					var clr:uint = bytes[index++];
 					clr = pal.palette[clr];
@@ -121,15 +122,15 @@ package com.ctyeung.Targa
 		
 		// 16, 24, 32 bpp
 		protected function decodeRGB(bytes:ByteArray):Boolean {
-			bmd = new BitmapData(hdr.imgWid, hdr.imgWid, true);
+			bmd = new BitmapData(hdr.imgWid, hdr.imgWid);
 			for(var y:uint=0; y<hdr.imgLen; y++) {
-				var index:uint = y*hdr.imgWid*3;
+				var index:uint = y*hdr.imgWid*3+offset;
 				for(var x:uint=0; x<hdr.imgWid; x++) {
-					var clr:uint = 	(bytes[index++]<<16)+
+					var clr:uint = 	(bytes[index++])+
 									(bytes[index++]<<8)+
-									(bytes[index++]);
+									(bytes[index++]<<16);
 					
-					bmd.setPixel32(x,y,clr);
+					bmd.setPixel(x,y,clr);
 				}
 			}
 			return true;

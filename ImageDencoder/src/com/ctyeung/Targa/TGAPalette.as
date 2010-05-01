@@ -37,6 +37,7 @@ package com.ctyeung.Targa
 
 	public class TGAPalette
 	{
+		public var length:int = 0;
 		public var palette:Array;
 		public var hdr:TGAHeader;
 		protected var dictionary:Dictionary;
@@ -68,7 +69,22 @@ package com.ctyeung.Targa
 				case TGATypeEnum.CLR_MAP_SIZE_32:
 					return decode32(bytes);
 			}
+			this.length = hdr.clrMapLen * numOfBytes;
 			return false;
+		}
+		
+		protected function get numOfBytes():int {
+			switch(hdr.clrMapEntrySze) {
+				case TGATypeEnum.CLR_MAP_SIZE_16:
+					return 2;
+					
+				case TGATypeEnum.CLR_MAP_SIZE_24:
+					return 3;
+					
+				case TGATypeEnum.CLR_MAP_SIZE_32:
+					return 4;
+			}
+			return 0;
 		}
 		
 		protected function decode16(bytes:ByteArray):Boolean {
