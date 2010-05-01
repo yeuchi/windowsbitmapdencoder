@@ -33,6 +33,9 @@
 // ==================================================================
 package com.ctyeung.Targa
 {
+	import flash.display.BitmapData;
+	import flash.utils.ByteArray;
+
 	public class TGADecoder
 	{
 		public var hdr:TGAHeader;
@@ -42,8 +45,8 @@ package com.ctyeung.Targa
 		public function TGADecoder()
 		{
 			hdr = new TGAHeader();
-			pal = new TGAPalette();
-			img = new TGAImageData();
+			pal = new TGAPalette(hdr);
+			img = new TGAImageData(hdr, pal);
 			
 			pal.setRef(hdr);
 			img.setRef(hdr, pal);
@@ -51,10 +54,30 @@ package com.ctyeung.Targa
 		
 /////////////////////////////////////////////////////////////////////
 // Decode 
+		public function decode(bytes:ByteArray):Boolean {
+			if(hdr.decode(bytes))
+				if(pal.decode(bytes))
+					if(img.decode(bytes))
+						return true;
+			return false;
+		}
 		
 		public function get bitDepth():int {
 			if(!hdr) return -1;
-			return 
+			return hdr.bpp;
 		}
+		
+		public function get palette():Array {
+			if(!pal) return null;
+			return pal.palette;
+		}
+		
+		public function get bitmapData():BitmapData {
+			if(!img) return null;
+			return img.bitmapData;
+		}
+		
+		
+		
 	}
 }
