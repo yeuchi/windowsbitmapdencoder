@@ -36,24 +36,6 @@ package com.ctyeung.Targa
 
 	public class TGAHeader
 	{
-		// screen origin
-		public static const ORIG_LOW_LEFT:int 		= 0;
-		public static const ORIG_LOW_RIGHT:int 		= 1;
-		public static const ORIG_UP_LEFT:int 		= 10;
-		public static const ORIG_UP_RIGHT:int 		= 11;
-		
-		// data storage interleave
-		public static const INTERLEAVE_NONE:int		= 0;
-		public static const INTERLEAVE_2WAY:int		= 1;
-		public static const INTERLEAVE_4WAY:int		= 10;
-		public static const INTERLEAVE_RESERVED:int	= 11;
-		
-		// bit depth
-		public static const BPP_1:int 				= 1;	// binary
-		public static const BPP_8:int				= 8;	// grayscale or palette
-		public static const BPP_24:int				= 24;	// RGB
-		public static const BPP_32:int				= 32;	// RGB + alpha
-		
 		public var lenID:int;			// length of image ID, 1 byte: 0 - 255 bytes (0=no id)
 		public var clrMapType:Boolean;	// Color map type, 1 byte: 	0 (no color map) 
 										//							1 (color map included)
@@ -77,6 +59,7 @@ package com.ctyeung.Targa
 		public var imgIDField:Array;	// image identification field
 		public var scrnOrgn:int;		// screen origin
 		public var dataInterleave:int	// data storage interleave
+		public var attrBpp:int;			// Attribute bits per pixel
 		
 		public function TGAHeader()
 		{
@@ -122,29 +105,9 @@ package com.ctyeung.Targa
 		
 		// image descriptor byte, 1 byte
 		protected function set imageDescriptor(value:int):void {
-			var uBit:Boolean = value&0x80;
-			var lBit:Boolean = value&0x40;
-			
-			if(!uBit&&!lBit)	
-				dataInterleave = INTERLEAVE_NONE;
-			else if(!uBit)
-				dataInterleave = INTERLEAVE_2WAY;
-			else if(!lBit)
-				dataInterleave = INTERLEAVE_4WAY;
-			else
-				dataInterleave = INTERLEAVE_RESERVE;
-			
-			uBit = value&0x20;
-			lBit = value&0x10;
-			
-			if(!uBit&&!lBit)
-				scrnOrgn = ORIG_LOW_LEFT;
-			else if (!uBit)
-				scrnOrgn = ORIG_LOW_RIGHT;
-			else if (!lBit)
-				scrnOrgn = ORIG_UP_LEFT;
-			else
-				scrnOrgn = ORIG_UP_RIGHT;
+			dataInterleave 	= (value&C0)>>6;
+			scrnOrgn		= (value&30)>>3;
+			attrBpp			= value&0F;
 		}
 		
 /////////////////////////////////////////////////////////////////////
