@@ -81,12 +81,12 @@ package com.ctyeung.Targa
 		public function decode(bytes:ByteArray):Boolean {
 			lenID	  		=  bytes[0];
 			clrMapType 		= (bytes[1])?true:false;
-			imgType			=  byte[2];
+			imgType			=  bytes[2];
 			clrMapOrgn		=  uint(bytes[3]);
 			clrMapOrgn		+= uint(bytes[4])<<8;
 			clrMapLen		=  uint(bytes[5]);
 			clrMapLen		+= uint(bytes[6])<<8;
-			clrMapEntrySze	= byte[7];
+			clrMapEntrySze	= bytes[7];
 			xOrgn			= uint(bytes[8]);
 			xOrgn			+= uint(bytes[9])<<8;
 			yOrgn			= uint(bytes[10]);
@@ -99,15 +99,15 @@ package com.ctyeung.Targa
 			imageDescriptor	= bytes[17];
 			
 			if(lenID) {
-				
 			}
+			return true;
 		}
 		
 		// image descriptor byte, 1 byte
 		protected function set imageDescriptor(value:int):void {
-			dataInterleave 	= (value&C0)>>6;
-			scrnOrgn		= (value&30)>>3;
-			attrBpp			= value&0F;
+			dataInterleave 	= (value&0xC0)>>6;
+			scrnOrgn		= (value&0x30)>>3;
+			attrBpp			= value&0x0F;
 		}
 		
 /////////////////////////////////////////////////////////////////////
@@ -118,7 +118,7 @@ package com.ctyeung.Targa
 		}
 		
 		protected function get imageDescriptor():int {
-			
+			return 1;
 		}
 	}
 }
