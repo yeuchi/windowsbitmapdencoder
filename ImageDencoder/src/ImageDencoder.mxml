@@ -40,13 +40,15 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.ctyeung.WindowsBitmap.WinBmpEncoder;
-			import com.ctyeung.WindowsBitmap.WinBmpDecoder;
-			import com.ctyeung.TIFFbaseline.TIFFbaselineDecoder;
-			import mx.graphics.codec.JPEGEncoder;
 			import com.adobe.images.JPGEncoder;
 			import com.adobe.images.PNGEncoder;
+			import com.ctyeung.TIFF6.TIFF6Decoder;
+			import com.ctyeung.Targa.TGADecoder;
+			import com.ctyeung.WindowsBitmap.WinBmpDecoder;
+			import com.ctyeung.WindowsBitmap.WinBmpEncoder;
+			
 			import mx.controls.Alert;
+			import mx.graphics.codec.JPEGEncoder;
 			protected var file:File;
 			protected var loader:Loader;
 			protected var urlloader:URLLoader;
@@ -62,7 +64,7 @@
 // loading
 			private function onBtnBrowse():void
 			{
-				var filter:FileFilter = new FileFilter("Images", "*.jpg;*.gif;*.png;*.swf;*.bmp;*.tif");
+				var filter:FileFilter = new FileFilter("Images", "*.jpg;*.gif;*.png;*.swf;*.bmp;*.tif;*.tga");
 				file = new File(); 
 			  	file = file.resolvePath("C:\\");
 			  	file.addEventListener(Event.SELECT, onFileOpen, false, 0, true);
@@ -85,6 +87,13 @@
 					urlloader = new URLLoader();
 					urlloader.dataFormat = URLLoaderDataFormat.BINARY;
 					urlloader.addEventListener(Event.COMPLETE, onLoadAlduTIFF, false, 0, true);
+					urlloader.addEventListener(IOErrorEvent.IO_ERROR, onLoadError, false, 0, true);
+					urlloader.load(new URLRequest(file.url));
+				}
+				else if (str.indexOf(".TGA", 0)>0) {
+					urlloader = new URLLoader();
+					urlloader.dataFormat = URLLoaderDataFormat.BINARY;
+					urlloader.addEventListener(Event.COMPLETE, onLoadTarga, false, 0, true);
 					urlloader.addEventListener(IOErrorEvent.IO_ERROR, onLoadError, false, 0, true);
 					urlloader.load(new URLRequest(file.url));
 				}
@@ -121,10 +130,25 @@
 			private function onLoadAlduTIFF(e:Event):Boolean
 			{
 				var bytes:ByteArray = urlloader.data as ByteArray;
-				var tiff:TIFFbaselineDecoder = new TIFFbaselineDecoder();
+				var tiff:TIFF6Decoder = new TIFF6Decoder();
 				if(tiff.decode(bytes)) {
 					imgSrc.source = new Bitmap(tiff.bitmapData);
 					bitmapData = tiff.bitmapData;
+					return true;
+				}	
+				else {
+					Alert.show("Failed TIFF decoding");
+					return false;	
+				}		
+			}
+			
+			private function onLoadTarga(e:Event):Boolean
+			{
+				var bytes:ByteArray = urlloader.data as ByteArray;
+				var tga:TGADecoder = new TGADecoder();
+				if(tga.decode(bytes)) {
+					imgSrc.source = new Bitmap(tga.bitmapData);
+					bitmapData = tga.bitmapData;
 					return true;
 				}	
 				else {
