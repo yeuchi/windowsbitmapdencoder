@@ -72,18 +72,15 @@ package com.ctyeung.Targa
 		public function decode(bytes:ByteArray):Boolean {
 			empty();
 			offset = hdr.length + pal.length;
-			switch(hdr.imgType) {
-				// type 3
-				case TGATypeEnum.IMG_TYPE_MONO_NO_CMP:
+			switch(hdr.bpp) {
+				case TGATypeEnum.BPP_1:
 					return decodeMono(bytes);
 				
-				// type 1
-				case TGATypeEnum.IMG_TYPE_CLR_MAP_NO_CMP:
-					return decodeClrMap(bytes);
+				case TGATypeEnum.BPP_8:
+					return decode8(bytes);
 					
-				// type 2
-				case TGATypeEnum.IMG_TYPE_RGB_NO_CMP:
-					return decodeRGB(bytes);
+				case TGATypeEnum.BPP_24:
+					return decode24(bytes);
 			}
 			empty();
 			return false;
@@ -105,9 +102,44 @@ package com.ctyeung.Targa
 			}
 			return true;
 		}
+
+/////////////////////////////////////////////////////////////////////
+// 8 bpp image
+		
+		protected function decode8(bytes:ByteArray):Boolean {
+			switch(hdr.imgType) {
+				case TGATypeEnum.IMG_TYPE_MONO_NO_CMP:
+					return decode8Mono(bytes);
+					
+				case TGATypeEnum.IMG_TYPE_CLR_MAP_NO_CMP:
+					return decode8ClrMap(bytes);
+					
+				case TGATypeEnum.IMG_TYPE_CLR_RMAP_RLE:
+				case TGATypeEnum.IMG_TYPE_CLR_MAP_HUFF:
+				case TGATypeEnum.IMG_TYPE_CLR_MAP_HUFFQUAD:
+					break;
+			}
+			return false;
+		}
+		
+		protected function decode8Mono(bytes:ByteArray):Boolean {
+			bmd = new BitmapData(hdr.imgWid, hdr.imgWid);
+			for(var y:uint=0; y<hdr.imgLen; y++) {
+				var index:uint = y*hdr.imgWid+offset;
+				for(var x:uint=0; x<hdr.imgWid; x++) {
+					var clr:uint = bytes[index++];
+					clr = (clr<<16) +
+						  (clr<<8) + 
+						  clr;
+					
+					bmd.setPixel(x,y,clr);
+				}
+			}
+			return true;
+		}
 		
 		// 8 bpp, only 16 entries of color in palette
-		protected function decodeClrMap(bytes:ByteArray):Boolean {
+		protected function decode8ClrMap(bytes:ByteArray):Boolean {
 			bmd = new BitmapData(hdr.imgWid, hdr.imgWid, true);
 			for(var y:uint=0; y<hdr.imgLen; y++) {
 				var index:uint = y*hdr.imgWid+offset;
@@ -119,9 +151,24 @@ package com.ctyeung.Targa
 			}
 			return true;
 		}
+
+/////////////////////////////////////////////////////////////////////
+// decode 24 bpp image
 		
-		// 16, 24, 32 bpp
-		protected function decodeRGB(bytes:ByteArray):Boolean {
+		protected function decode24(bytes:ByteArray):Boolean {
+			switch(hdr.imgType) {
+				case TGATypeEnum.IMG_TYPE_CLR_MAP_NO_CMP:	// type 1
+				case TGATypeEnum.IMG_TYPE_RGB_RLE:
+					break;
+					
+				case TGATypeEnum.IMG_TYPE_MONO_NO_CMP:		// type 3
+				case TGATypeEnum.IMG_TYPE_RGB_NO_CMP:		// type 2
+					return decode24RGB(bytes);
+			}
+			return false;
+		}
+		
+		protected function decode24RGB(bytes:ByteArray):Boolean {
 			bmd = new BitmapData(hdr.imgWid, hdr.imgWid);
 			for(var y:uint=0; y<hdr.imgLen; y++) {
 				var index:uint = y*hdr.imgWid*3+offset;
