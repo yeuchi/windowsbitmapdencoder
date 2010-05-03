@@ -38,8 +38,8 @@ package com.ctyeung.Targa
 	public class TGAPalette
 	{
 		public var length:int = 0;
-		public var palette:Array;
 		public var hdr:TGAHeader;
+		protected var palette:Array;
 		protected var dictionary:Dictionary;
 		protected var keys:Array;
 		
@@ -71,6 +71,16 @@ package com.ctyeung.Targa
 			}
 			this.length = hdr.clrMapLen * numOfBytes;
 			return false;
+		}
+		
+		public function color(index:int):uint {
+			if(index>this.palette.length)
+				return 0xFFFFFFFF;
+			
+			if(index<0)
+				return 0;
+			
+			return palette[index];
 		}
 		
 		protected function get numOfBytes():int {
