@@ -1,19 +1,16 @@
 // ==================================================================
-// Module:			TGADecoder
+// Module:			TGAEncoder.as
 //
-// Description:		Decoder for Targa file 
+// Description:		Encoder for Truevision TARGA
 //
 // Input/Output:	Bitmap data
 //
 // Author(s):		C.T. Yeung
 //
 // History:
-// 27Apr10			start											cty
-// 02May10			decodes 32 bpp no-compress, no interleave		cty
-// 02May10			decodes 24 bpp no-compress, no interleave		cty
-// 02May10			decodes 8 bpp no-compress, monochrome			cty
-// 02May10			above tests performed on Adobe CS4 Photoshop and
-//					GIMP 2.0										cty
+// 02May10			default RGB 24, 32 bpp no-compress encoding passed testing
+//					on Adobe CS4 Photoshop 							cty
+//
 // Copyright (c) 2010 C.T.Yeung
 
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -40,40 +37,41 @@ package com.ctyeung.Targa
 	import flash.display.BitmapData;
 	import flash.utils.ByteArray;
 
-	public class TGADecoder
+	public class TGAEncoder
 	{
-		public var hdr:TGAHeader;
-		public var pal:TGAPalette;
-		public var img:TGAImageData;
+		public var bytes:ByteArray;
+		protected var hdr:TGAHeader;
+		protected var pal:TGAPalette;
+		protected var img:TGAImageData;
+		protected var bmd:BitmapData;
 		
-		public function TGADecoder()
+		public function TGAEncoder()
 		{
 			hdr = new TGAHeader();
-			pal = new TGAPalette(hdr);
+			//pal = new TGAPalette(hdr);
 			img = new TGAImageData(hdr, pal);
 		}
 		
-/////////////////////////////////////////////////////////////////////
-// Decode 
-		public function decode(bytes:ByteArray):Boolean {
-			if(hdr.decode(bytes))
-				if(pal.decode(bytes))
-					if(img.decode(bytes))
-						return true;
+		public function encode( bmd:BitmapData, 		// [in] image
+							    hasAlpha:Boolean=false)	// [in] 24, or 32 bpp
+								:Boolean {				// [out] success or not
+			hdr.bpp = (hasAlpha)?
+						TGATypeEnum.BPP_32:
+						TGATypeEnum.BPP_24;
+			
+			if(hdr.encode(bmd))
+				//if(pal.encode(bmd))
+				if(img.encode(bmd, hasAlpha)){
+					bytes = new ByteArray();
+					bytes.writeBytes(hdr.bytes, 0, hdr.bytes.length);
+					bytes.writeBytes(img.bytes, 0, img.bytes.length);
+					bytes.writeUnsignedInt(0);
+					bytes.writeUnsignedInt(0);
+					bytes.writeMultiByte("TRUEVISION-XFILE.", "us-ascii");
+					return true;
+				}
+		
 			return false;
 		}
-		
-		public function get bitDepth():int {
-			if(!hdr) return -1;
-			return hdr.bpp;
-		}
-		
-		public function get bitmapData():BitmapData {
-			if(!img) return null;
-			return img.bitmapData;
-		}
-		
-		
-		
 	}
 }

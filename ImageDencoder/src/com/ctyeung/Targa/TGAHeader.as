@@ -32,10 +32,12 @@
 // ==================================================================
 package com.ctyeung.Targa
 {
+	import flash.display.BitmapData;
 	import flash.utils.ByteArray;
 
 	public class TGAHeader
 	{
+		public var bytes:ByteArray;
 		public var length:int = TGATypeEnum.HEADER_LEN;
 		public var lenID:int;			// length of image ID, 1 byte: 0 - 255 bytes (0=no id)
 		public var clrMapType:Boolean;	// Color map type, 1 byte: 	0 (no color map) 
@@ -60,7 +62,10 @@ package com.ctyeung.Targa
 		public var imgIDField:Array;	// image identification field
 		public var scrnOrgn:int;		// screen origin
 		public var dataInterleave:int	// data storage interleave
-		public var attrBpp:int;			// Attribute bits per pixel
+		public var attrBpp:int;			// Attribute bits per pixel (alpha)
+										// Targa 16: 0 or 1
+										// Targa 24: 0
+										// Targa 32: 8
 		
 		public function TGAHeader()
 		{
@@ -114,12 +119,43 @@ package com.ctyeung.Targa
 /////////////////////////////////////////////////////////////////////
 // Encoding
 		
-		public function encode(byte:ByteArray):Boolean {
+		// default 32 bpp encoding, no compression
+		public function encode(bmd:BitmapData):Boolean {
+			bytes = new ByteArray();
+			bytes.writeByte(0);									// lenID = 0
+			bytes.writeByte(0);									// clrMapType = false
+			bytes.writeByte(TGATypeEnum.IMG_TYPE_RGB_NO_CMP);	// type 2
+			bytes.writeByte(0);									// no map origin
+			bytes.writeByte(0);									
+			bytes.writeByte(0);									// no map length
+			bytes.writeByte(0);
+			bytes.writeByte(0);									// no color map entries
+			bytes.writeByte(0);									// x coor origin
+			bytes.writeByte(0);
+			bytes.writeByte(0);									// y coor origin
+			bytes.writeByte(0);
+			bytes.writeByte((bmd.width & 0xFF));				// image width
+			bytes.writeByte((bmd.width & 0xFF00)>>(8));
+			bytes.writeByte((bmd.height & 0xFF));				// image height
+			bytes.writeByte((bmd.height & 0xFF00)>>(8));
+			bytes.writeByte(bpp);								// 24 or 32 bpp
+			bytes.writeByte(imageDescriptor);					// 0 if BGR or 8 if BGRA
 			return true;
 		}
 		
 		protected function get imageDescriptor():int {
-			return 1;
+			// not including Screen origin for default
+			// not including data storage interleave for default
+			
+			// include only 24, 32 bits
+			switch(bpp) {
+				case TGATypeEnum.BPP_24:
+					return TGATypeEnum.ATTR_NONE_24bpp;
+					
+				case TGATypeEnum.BPP_32:
+					return TGATypeEnum.ATTR_DEPTH_32bpp;
+			}
+			return 0;
 		}
 	}
 }
