@@ -41,16 +41,14 @@ package com.ctyeung.WindowsBitmap
 	
 	public class WinBmpEncoder 
 	{
-		public var fileHdr:WinBmpFileHdr;
-		public var bmpHdr:WinBmpHdr;
-		public var bmpPal:WinBmpPal;
-		public var bmpImg:WinBmpImg;
 		public var bytes:ByteArray;
+		protected var fileHdr:WinBmpFileHdr;
+		protected var bmpHdr:WinBmpHdr;
+		protected var bmpPal:WinBmpPal;
+		protected var bmpImg:WinBmpImg;
 		protected var _bitmapData:BitmapData;
 		
-		public function WinBmpEncoder()
-		{
-			super();
+		public function WinBmpEncoder() {
 			fileHdr = new WinBmpFileHdr();
 			bmpHdr 	= new WinBmpHdr();
 			bmpPal 	= new WinBmpPal();
@@ -63,27 +61,6 @@ package com.ctyeung.WindowsBitmap
 		
 /////////////////////////////////////////////////////////////////////
 // Encode 
-
-		public function set bitDepth(bpp:int):void
-		{
-			if(	(bpp!=WinBmpHdr.BPP_1)&&
-				(bpp!=WinBmpHdr.BPP_4)&&
-				(bpp!=WinBmpHdr.BPP_8)&&
-				(bpp!=WinBmpHdr.BPP_16)&&
-				(bpp!=WinBmpHdr.BPP_24))
-					
-			bmpHdr.ibiBitCount = bpp;
-		}
-		
-		public function set palette(array:Array):void
-		{
-			if ((array.length != 2 << WinBmpHdr.BPP_1) &&
-				(array.length != 2 << WinBmpHdr.BPP_4) &&
-				(array.length != 2 << WinBmpHdr.BPP_8) &&
-				(array.length != 2 << WinBmpHdr.BPP_16))
-			
-			bmpPal.palette = array;
-		}
 
 		public function set bitmapData(data:BitmapData):void
 		{

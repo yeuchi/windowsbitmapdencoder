@@ -44,6 +44,7 @@
 			import com.adobe.images.PNGEncoder;
 			import com.ctyeung.TIFF6.TIFF6Decoder;
 			import com.ctyeung.Targa.TGADecoder;
+			import com.ctyeung.Targa.TGAEncoder;
 			import com.ctyeung.WindowsBitmap.WinBmpDecoder;
 			import com.ctyeung.WindowsBitmap.WinBmpEncoder;
 			
@@ -169,7 +170,7 @@
 			{
 				if (!bitmapData) return;
 				
-				var filter:FileFilter = new FileFilter("Images", "*.jpg;*.gif;*.png;*.swf;*.bmp");
+				var filter:FileFilter = new FileFilter("Images", "*.jpg;*.gif;*.png;*.swf;*.bmp;*.tga");
 				file = new File(); 
 			  	file = file.resolvePath(txtBrowseFile.text);
 			  	file.addEventListener(Event.SELECT, onFileSave, false, 0, true);
@@ -193,6 +194,10 @@
 					bytes = PNGEncoder.encode(bitmapData);
 					break;
 					
+					case "TGA":
+					bytes = onEncodeTGA();
+					break;
+					
 					case "JPG":
 					case "JPEG":
 					bytes = onEncodeJPG();
@@ -213,17 +218,22 @@
 				stream.close();
 			}
 			
-			protected function onEncodeJPG():ByteArray
-			{
+			protected function onEncodeJPG():ByteArray {
 				var jpg:JPEGEncoder = new JPEGEncoder();
 				return jpg.encode(bitmapData);
 			}
 			
-			protected function onEncodeBMP():ByteArray
-			{
+			protected function onEncodeBMP():ByteArray {
 				var winBmp:WinBmpEncoder = new WinBmpEncoder();
 				if(winBmp.encode(bitmapData)) 
 					return winBmp.bytes;
+				return null;
+			}
+			
+			protected function onEncodeTGA():ByteArray {
+				var tga:TGAEncoder = new TGAEncoder();
+				if(tga.encode(bitmapData, true))
+					return tga.bytes;
 				return null;
 			}
 		]]>
