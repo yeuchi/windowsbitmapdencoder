@@ -81,7 +81,6 @@ package com.ctyeung.PSD
 //			LONG  LengthOfChannelData;  /* Channel Length Info field two */
 //		} CLI;
 		
-		
 		protected function dataFormatDes():String {
 			switch(id) {
 				case 03E8:
