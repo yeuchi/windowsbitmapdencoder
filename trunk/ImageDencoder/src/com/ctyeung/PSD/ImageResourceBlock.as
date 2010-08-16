@@ -5,12 +5,14 @@ package com.ctyeung.PSD
 
 	public class ImageResourceBlock
 	{
+		protected var blockLen:uint;
+		
 		public function ImageResourceBlock()
 		{
 		}
 		
 		public function decode(bytes:ByteArray):void {
-			
+			blockLen = bytes.readUnsignedInt();
 		}
 	}
 }
